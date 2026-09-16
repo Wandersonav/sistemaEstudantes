@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Estudantes — Gestão, Métricas & Pomodoro</title>
+  <meta name="description" content="Plataforma de gestão de estudos com planejamento de horários, métricas analíticas de carga horária e cronômetro Pomodoro de 25 minutos.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5.3.3 CSS & Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  
+  <!-- Estilos Customizados da Aplicação -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-light">
+  <div class="app-layout">
+    <!-- 1. Menu Lateral (Sidebar) com Seleção de Funções -->
+    <aside class="sidebar bg-white border-end shadow-sm">
+      <div class="sidebar-brand d-flex align-items-center gap-3 pb-3 border-bottom mb-3">
+        <div class="brand-avatar">🎓</div>
+        <div class="brand-details">
+          <h1 class="brand-title h6 mb-0 fw-bold">SistemaEstudante</h1>
+          <span class="brand-tag text-muted small">Gestão & Produtividade</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav d-flex flex-column gap-1" aria-label="Navegação Principal">
+        <span class="nav-section-title text-uppercase fw-bold text-secondary small px-3 py-1">Módulos</span>
+        <button type="button" class="nav-link active d-flex align-items-center gap-2 px-3 py-2 border-0 bg-transparent" id="nav-btn-scheduling" data-tab="scheduling">
+          <i class="bi bi-calendar-check nav-icon text-primary"></i>
+          <span class="nav-text flex-grow-1 text-start">Planejamento & Agenda</span>
+          <span class="badge rounded-pill bg-secondary" id="badge-session-count">0</span>
+        </button>
+
+        <button type="button" class="nav-link d-flex align-items-center gap-2 px-3 py-2 border-0 bg-transparent" id="nav-btn-analytics" data-tab="analytics">
+          <i class="bi bi-graph-up-arrow nav-icon text-success"></i>
+          <span class="nav-text flex-grow-1 text-start">Métricas & Carga Horária</span>
+          <span class="badge rounded-pill bg-danger" id="badge-streak-count">🔥 0d</span>
+        </button>
+
+        <button type="button" class="nav-link d-flex align-items-center gap-2 px-3 py-2 border-0 bg-transparent" id="nav-btn-pomodoro" data-tab="pomodoro">
+          <i class="bi bi-stopwatch nav-icon text-danger"></i>
+          <span class="nav-text flex-grow-1 text-start">Cronômetro Pomodoro</span>
+          <span class="badge rounded-pill bg-primary">25 min</span>
+        </button>
+
+        <button type="button" class="nav-link d-flex align-items-center gap-2 px-3 py-2 border-0 bg-transparent" id="nav-btn-mcp" data-tab="mcp">
+          <i class="bi bi-cloud-arrow-up nav-icon text-info"></i>
+          <span class="nav-text flex-grow-1 text-start">Google Calendar (MCP)</span>
+          <span class="badge rounded-pill bg-success-subtle text-success border border-success" id="badge-mcp-status">Ativo</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer pt-3 border-top mt-auto d-flex align-items-center justify-content-between text-muted small">
+        <div class="footer-info">
+          <span class="fw-bold d-block text-dark">Bootstrap 5 + Vanilla</span>
+          <span class="text-secondary small">v1.2.0 • Fullstack</span>
+        </div>
+        <i class="bi bi-lightning-charge-fill text-warning fs-5"></i>
+      </div>
+    </aside>
+
+    <!-- 2. Área de Conteúdo Principal -->
+    <div class="content-wrapper flex-grow-1 d-flex flex-column">
+      <!-- Cabeçalho Superior -->
+      <header class="top-header bg-white border-bottom px-4 py-3 d-flex align-items-center justify-content-between sticky-top shadow-sm">
+        <div class="header-titles">
+          <h2 class="h5 mb-0 fw-bold text-dark" id="page-title">Planejamento & Agenda de Estudos</h2>
+          <p class="small text-muted mb-0" id="page-subtitle">Organize seus blocos de estudo diários com sincronização externa.</p>
+        </div>
+
+        <div class="header-actions d-flex align-items-center gap-3">
+          <div class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-2 d-flex align-items-center gap-2" id="connection-status-pill">
+            <span class="status-dot"></span>
+            <span class="fw-semibold" id="connection-status-text">Conexão Ativa</span>
+          </div>
+
+          <button type="button" class="btn btn-danger btn-sm px-3 py-2 fw-semibold shadow-sm d-flex align-items-center gap-2" id="btn-quick-pomodoro">
+            <i class="bi bi-stopwatch-fill"></i>
+            <span>Pomodoro Rápido</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Conteúdo das Páginas / Abas -->
+      <main class="main-content container-fluid p-4">
+
+        <!-- ================= ABA 1: PLANEJAMENTO & AGENDAMENTO ================= -->
+        <section id="section-scheduling" class="tab-section active">
+          <!-- Formulário de Agendamento -->
+          <article class="card shadow-sm border-0 mb-4 rounded-3">
+            <div class="card-body p-4">
+              <header class="mb-3">
+                <h3 class="h6 fw-bold text-dark mb-1">
+                  <i class="bi bi-calendar-plus text-primary me-2"></i>Agendar Bloco de Estudo
+                </h3>
+                <p class="small text-muted mb-0">Defina sua disciplina, horário e envie automaticamente para o Google Calendar via MCP.</p>
+              </header>
+
+              <form id="form-create-session" class="needs-validation">
+                <div class="row g-3 mb-3">
+                  <div class="col-md-6">
+                    <label for="input-subject" class="form-label small fw-bold text-secondary">Disciplina / Matéria</label>
+                    <select id="input-subject" class="form-select" required></select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="input-topic" class="form-label small fw-bold text-secondary">Tópico ou Conteúdo</label>
+                    <input type="text" id="input-topic" class="form-control" placeholder="Ex.: Árvores Binárias, Derivadas, Padrão Observer..." required>
+                  </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                  <div class="col-md-3 col-sm-6">
+                    <label for="input-date" class="form-label small fw-bold text-secondary">Data</label>
+                    <input type="date" id="input-date" class="form-control" required>
+                  </div>
+
+                  <div class="col-md-2 col-sm-6">
+                    <label for="input-time" class="form-label small fw-bold text-secondary">Início</label>
+                    <input type="time" id="input-time" class="form-control" required>
+                  </div>
+
+                  <div class="col-md-2 col-sm-6">
+                    <label for="input-duration" class="form-label small fw-bold text-secondary">Duração</label>
+                    <select id="input-duration" class="form-select">
+                      <option value="25">25 min (Pomodoro)</option>
+                      <option value="50">50 min</option>
+                      <option value="60">60 min (1 Hora)</option>
+                      <option value="90">90 min (1h 30m)</option>
+                      <option value="120">120 min (2 Horas)</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-3 col-sm-6">
+                    <label for="input-activity" class="form-label small fw-bold text-secondary">Tipo de Atividade</label>
+                    <select id="input-activity" class="form-select">
+                      <option value="TEORIA">Teoria e Leitura</option>
+                      <option value="EXERCICIOS">Resolução de Exercícios</option>
+                      <option value="REVISAO">Revisão Espaçada</option>
+                      <option value="SIMULADO">Simulado e Provas</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-2 col-sm-6">
+                    <label for="input-status" class="form-label small fw-bold text-secondary">Status</label>
+                    <select id="input-status" class="form-select">
+                      <option value="PLANEJADA">Planejada</option>
+                      <option value="EM_ANDAMENTO">Em Andamento</option>
+                      <option value="CONCLUIDA">Concluída</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                  <div class="col-12">
+                    <label for="input-notes" class="form-label small fw-bold text-secondary">Anotações da Sessão (Opcional)</label>
+                    <input type="text" id="input-notes" class="form-control" placeholder="Metas da sessão, lista de exercícios ou páginas a ler...">
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-2 flex-wrap gap-2">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="check-sync-mcp" checked>
+                    <label class="form-check-label fw-semibold text-primary" for="check-sync-mcp">
+                      <i class="bi bi-google me-1"></i>Sincronizar no Google Calendar via MCP ([Estudo] {Matéria})
+                    </label>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary px-4 shadow-sm" id="btn-submit-session">
+                    <i class="bi bi-check2-circle me-1"></i>Salvar e Agendar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </article>
+
+          <!-- Tabela de Sessões -->
+          <article class="card shadow-sm border-0 rounded-3">
+            <div class="card-body p-4">
+              <header class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
+                  <h3 class="h6 fw-bold text-dark mb-1">
+                    <i class="bi bi-list-task text-primary me-2"></i>Sessões Agendadas
+                  </h3>
+                  <p class="small text-muted mb-0">Gerencie seus blocos de estudo e status da sincronização MCP.</p>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <div class="input-group input-group-sm" style="width: 200px;">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="search" id="filter-search" class="form-control" placeholder="Buscar tópico...">
+                  </div>
+                  <select id="filter-subject" class="form-select form-select-sm" style="width: 170px;">
+                    <option value="ALL">Todas as Disciplinas</option>
+                  </select>
+                  <select id="filter-status" class="form-select form-select-sm" style="width: 140px;">
+                    <option value="ALL">Todos os Status</option>
+                    <option value="PLANEJADA">Planejada</option>
+                    <option value="EM_ANDAMENTO">Em Andamento</option>
+                    <option value="CONCLUIDA">Concluída</option>
+                  </select>
+                </div>
+              </header>
+
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="small fw-bold text-secondary text-uppercase">Data & Horário</th>
+                      <th class="small fw-bold text-secondary text-uppercase">Disciplina</th>
+                      <th class="small fw-bold text-secondary text-uppercase">Tópico</th>
+                      <th class="small fw-bold text-secondary text-uppercase">Atividade</th>
+                      <th class="small fw-bold text-secondary text-uppercase">Duração</th>
+                      <th class="small fw-bold text-secondary text-uppercase">Status</th>
+                      <th class="small fw-bold text-secondary text-uppercase">Google Calendar (MCP)</th>
+                      <th class="small fw-bold text-secondary text-uppercase text-end">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sessions-table-body">
+                    <!-- Linhas injetadas dinamicamente via script.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <!-- ================= ABA 2: MÉTRICAS & CARGA HORÁRIA ================= -->
+        <section id="section-analytics" class="tab-section">
+          <!-- Cards de KPIs -->
+          <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-sm-6">
+              <article class="card border-0 shadow-sm rounded-3 p-3 kpi-box theme-indigo bg-white">
+                <span class="small fw-bold text-muted">Carga Horária Total</span>
+                <strong class="display-6 fw-bold text-dark my-1" id="kpi-total-hours">0.0h</strong>
+                <span class="small text-secondary">Tempo total registrado</span>
+              </article>
+            </div>
+
+            <div class="col-xl-3 col-sm-6">
+              <article class="card border-0 shadow-sm rounded-3 p-3 kpi-box theme-emerald bg-white">
+                <span class="small fw-bold text-muted">Esta Semana</span>
+                <strong class="display-6 fw-bold text-dark my-1" id="kpi-week-hours">0.0h</strong>
+                <span class="small text-secondary">Segunda a Domingo</span>
+              </article>
+            </div>
+
+            <div class="col-xl-3 col-sm-6">
+              <article class="card border-0 shadow-sm rounded-3 p-3 kpi-box theme-amber bg-white">
+                <span class="small fw-bold text-muted">Este Mês</span>
+                <strong class="display-6 fw-bold text-dark my-1" id="kpi-month-hours">0.0h</strong>
+                <span class="small text-secondary">Progresso mensal</span>
+              </article>
+            </div>
+
+            <div class="col-xl-3 col-sm-6">
+              <article class="card border-0 shadow-sm rounded-3 p-3 kpi-box theme-rose bg-white">
+                <span class="small fw-bold text-muted">Sequência (Streak)</span>
+                <strong class="display-6 fw-bold text-dark my-1" id="kpi-streak-days">0 dias</strong>
+                <span class="small text-secondary" id="kpi-longest-streak">Maior sequência: 0d</span>
+              </article>
+            </div>
+          </div>
+
+          <!-- Linha com Visão Semanal e Mensal -->
+          <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+              <article class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-body p-4">
+                  <header class="mb-3">
+                    <h3 class="h6 fw-bold text-dark mb-1">
+                      <i class="bi bi-bar-chart-line text-primary me-2"></i>Visão Semanal (Progresso Diário)
+                    </h3>
+                    <p class="small text-muted mb-0">Horas de estudo concluídas em cada dia da semana corrente.</p>
+                  </header>
+                  <div class="weekly-bars-container d-flex flex-column gap-3" id="weekly-bars-container">
+                    <!-- Barras injetadas via script.js -->
+                  </div>
+                </div>
+              </article>
+            </div>
+
+            <div class="col-lg-6">
+              <article class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-body p-4">
+                  <header class="mb-3">
+                    <h3 class="h6 fw-bold text-dark mb-1">
+                      <i class="bi bi-pie-chart text-success me-2"></i>Visão Mensal (Divisão por Matéria)
+                    </h3>
+                    <p class="small text-muted mb-0">Distribuição proporcional do tempo dedicado a cada disciplina.</p>
+                  </header>
+                  <div class="monthly-distribution-container d-flex flex-column gap-3" id="monthly-distribution-container">
+                    <!-- Barras proporcionais via script.js -->
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <!-- Visão Anual: Mapa de Consistência (Heatmap) -->
+          <article class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-4">
+              <header class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
+                  <h3 class="h6 fw-bold text-dark mb-1">
+                    <i class="bi bi-fire text-danger me-2"></i>Visão Anual & Mapa de Consistência (365 Dias)
+                  </h3>
+                  <p class="small text-muted mb-0" id="heatmap-summary-text">Histórico de atividade diária nos últimos 12 meses.</p>
+                </div>
+
+                <div class="heatmap-legend d-flex align-items-center gap-1 small text-muted">
+                  <span>Menos</span>
+                  <span class="legend-swatch lvl-0"></span>
+                  <span class="legend-swatch lvl-1"></span>
+                  <span class="legend-swatch lvl-2"></span>
+                  <span class="legend-swatch lvl-3"></span>
+                  <span class="legend-swatch lvl-4"></span>
+                  <span>Mais</span>
+                </div>
+              </header>
+
+              <div class="heatmap-scroll-area">
+                <div class="heatmap-matrix" id="heatmap-matrix">
+                  <!-- Células geradas via script.js -->
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <!-- ================= ABA 3: CRONÔMETRO POMODORO ================= -->
+        <section id="section-pomodoro" class="tab-section">
+          <div class="pomodoro-stage mx-auto" style="max-width: 540px;">
+            <!-- Banner de Sessão Ativa -->
+            <div class="alert alert-primary d-flex align-items-center justify-content-between rounded-3 mb-4 shadow-sm hidden" id="pomodoro-session-banner">
+              <div>
+                <span class="badge bg-primary text-uppercase me-2">Sessão Vinculada</span>
+                <strong class="text-dark" id="pomodoro-session-title">Nenhuma sessão selecionada</strong>
+              </div>
+              <i class="bi bi-check-circle-fill text-primary fs-5"></i>
+            </div>
+
+            <article class="card border-0 shadow-sm rounded-4 p-4 text-center">
+              <!-- Alternador de Modo -->
+              <div class="btn-group mb-4 mx-auto" role="group" aria-label="Alternar Modo Pomodoro">
+                <button type="button" class="btn btn-outline-danger active fw-bold px-4" id="btn-mode-focus">
+                  🍅 Foco (25 min)
+                </button>
+                <button type="button" class="btn btn-outline-success fw-bold px-4" id="btn-mode-break">
+                  ☕ Descanso (5 min)
+                </button>
+              </div>
+
+              <!-- Relógio Circular SVG -->
+              <div class="timer-display-wrap mx-auto position-relative">
+                <svg class="timer-svg" viewBox="0 0 320 320" aria-hidden="true">
+                  <circle class="timer-track" cx="160" cy="160" r="140"></circle>
+                  <circle class="timer-progress" id="timer-progress-ring" cx="160" cy="160" r="140"></circle>
+                </svg>
+
+                <div class="timer-readout position-absolute top-50 start-50 translate-middle text-center">
+                  <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle mb-2 px-3 py-1" id="pomodoro-badge-mode">
+                    ● MODO FOCO
+                  </span>
+                  <time class="timer-digits display-3 fw-bolder d-block" id="pomodoro-time-display">25:00</time>
+                  <span class="small text-muted d-block mt-1" id="pomodoro-caption">Mantenha a concentração na tarefa!</span>
+                </div>
+              </div>
+
+              <!-- Controles -->
+              <div class="d-flex justify-content-center align-items-center gap-3 mt-4">
+                <button type="button" class="btn btn-outline-secondary px-3 py-2 fw-semibold" id="btn-pomodoro-reset" title="Reiniciar tempo da etapa">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i>Reiniciar
+                </button>
+
+                <button type="button" class="btn btn-danger btn-lg px-4 py-2 fw-bold shadow" id="btn-pomodoro-toggle">
+                  <i class="bi bi-play-fill me-1"></i>Iniciar
+                </button>
+
+                <button type="button" class="btn btn-outline-secondary px-3 py-2 fw-semibold" id="btn-pomodoro-skip" title="Pular para a próxima etapa">
+                  <i class="bi bi-skip-forward me-1"></i>Pular
+                </button>
+              </div>
+
+              <!-- Marcador de Ciclos Concluídos -->
+              <footer class="pt-4 border-top mt-4 text-muted small">
+                <span class="d-block mb-2">Ciclos de foco concluídos hoje: <strong class="text-dark" id="pomodoro-completed-count">0</strong></span>
+                <div class="d-flex justify-content-center gap-2" id="pomodoro-dots-container" aria-label="Indicador de ciclos">
+                  <span class="cycle-dot"></span>
+                  <span class="cycle-dot"></span>
+                  <span class="cycle-dot"></span>
+                  <span class="cycle-dot"></span>
+                </div>
+              </footer>
+            </article>
+          </div>
+        </section>
+
+        <!-- ================= ABA 4: GOOGLE CALENDAR (MCP) ================= -->
+        <section id="section-mcp" class="tab-section">
+          <article class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-4">
+              <header class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                  <h3 class="h6 fw-bold text-dark mb-1">
+                    <i class="bi bi-google text-primary me-2"></i>Integração Google Calendar via MCP (Model Context Protocol)
+                  </h3>
+                  <p class="small text-muted mb-0">Sincronização externa assíncrona entre o sistema de estudantes e sua agenda Google.</p>
+                </div>
+                <button type="button" class="btn btn-primary shadow-sm" id="btn-sync-all-mcp">
+                  <i class="bi bi-arrow-repeat me-1"></i>Sincronizar Sessões Pendentes
+                </button>
+              </header>
+
+              <div class="row g-4 mb-4">
+                <div class="col-lg-6">
+                  <div class="p-3 bg-light rounded-3 border h-100">
+                    <h4 class="h6 fw-bold text-dark mb-3">Status da Conexão MCP</h4>
+                    <ul class="list-group list-group-flush bg-transparent">
+                      <li class="list-group-item bg-transparent d-flex justify-content-between px-0 py-2 small">
+                        <span class="text-muted">Protocolo</span>
+                        <strong class="text-dark">Model Context Protocol (MCP v1.0)</strong>
+                      </li>
+                      <li class="list-group-item bg-transparent d-flex justify-content-between px-0 py-2 small">
+                        <span class="text-muted">Servidor MCP</span>
+                        <strong class="text-primary">@modelcontextprotocol/server-google-calendar</strong>
+                      </li>
+                      <li class="list-group-item bg-transparent d-flex justify-content-between px-0 py-2 small">
+                        <span class="text-muted">Sessões Sincronizadas</span>
+                        <strong class="text-success" id="mcp-synced-count">0 sessões</strong>
+                      </li>
+                      <li class="list-group-item bg-transparent d-flex justify-content-between px-0 py-2 small">
+                        <span class="text-muted">Comportamento de Rede</span>
+                        <strong class="text-secondary">Execução assíncrona com fallback local</strong>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="col-lg-6">
+                  <div class="p-3 bg-light rounded-3 border h-100">
+                    <h4 class="h6 fw-bold text-dark mb-2">Configuração (.agents/mcp_config.json)</h4>
+                    <pre class="code-snippet mb-0"><code>{
+  "mcpServers": {
+    "google-calendar": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-google-calendar"],
+      "env": { "GOOGLE_CALENDAR_ID": "primary" }
+    }
+  }
+}</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Inspetor de Payload MCP -->
+              <div class="p-3 bg-light rounded-3 border">
+                <h4 class="h6 fw-bold text-dark mb-1">🔍 Inspetor de Payload Padronizado</h4>
+                <p class="small text-muted mb-3">Formato estrito enviado para a ferramenta de criação de evento do Google Calendar:</p>
+
+                <div class="row g-3 mb-3">
+                  <div class="col-md-6">
+                    <label for="inspector-subject" class="form-label small fw-bold text-secondary">Disciplina de Teste</label>
+                    <input type="text" id="inspector-subject" class="form-control form-control-sm" value="Algoritmos e Estruturas de Dados">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="inspector-topic" class="form-label small fw-bold text-secondary">Tópico de Teste</label>
+                    <input type="text" id="inspector-topic" class="form-control form-control-sm" value="Grafos e Árvores AVL">
+                  </div>
+                </div>
+
+                <pre class="code-snippet light mb-0"><code id="mcp-payload-preview"></code></pre>
+              </div>
+            </div>
+          </article>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5.3.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- JavaScript Modular Vanilla -->
+  <script src="script.js" defer></script>
+</body>
+</html>

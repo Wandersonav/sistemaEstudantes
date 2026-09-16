@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "google-calendar": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-google-calendar"
+      ],
+      "env": {
+        "GOOGLE_CALENDAR_ID": "primary"
+      },
+      "description": "Servidor MCP oficial para integração com Google Calendar (ferramentas de agendamento e eventos de estudo)"
+    }
+  }
+}
