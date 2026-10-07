@@ -42,7 +42,7 @@
         <button type="button" class="nav-link d-flex align-items-center gap-2 px-3 py-2 border-0 bg-transparent" id="nav-btn-analytics" data-tab="analytics">
           <i class="bi bi-graph-up-arrow nav-icon text-success"></i>
           <span class="nav-text flex-grow-1 text-start">Métricas & Carga Horária</span>
-          <span class="badge rounded-pill bg-danger" id="badge-streak-count">🔥 0d</span>
+          <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning" id="badge-streak-count">🔥 0d</span>
         </button>
 
         <button type="button" class="nav-link d-flex align-items-center gap-2 px-3 py-2 border-0 bg-transparent" id="nav-btn-pomodoro" data-tab="pomodoro">
@@ -76,7 +76,13 @@
           <p class="small text-muted mb-0" id="page-subtitle">Organize seus blocos de estudo diários com sincronização externa.</p>
         </div>
 
-        <div class="header-actions d-flex align-items-center gap-3">
+        <div class="header-actions d-flex align-items-center gap-2">
+          <!-- Alternador de Tema Claro / Escuro (Seção 7 da Skill) -->
+          <button type="button" class="btn btn-sm btn-theme-toggle px-3 py-2 fw-semibold d-flex align-items-center gap-2" id="btn-theme-toggle" title="Alternar Tema Claro / Escuro">
+            <i class="bi bi-moon-stars-fill" id="theme-toggle-icon"></i>
+            <span id="theme-toggle-text">Tema Escuro</span>
+          </button>
+
           <div class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-2 d-flex align-items-center gap-2" id="connection-status-pill">
             <span class="status-dot"></span>
             <span class="fw-semibold" id="connection-status-text">Conexão Ativa</span>
@@ -238,7 +244,7 @@
           <!-- Cards de KPIs -->
           <div class="row g-3 mb-4">
             <div class="col-xl-3 col-sm-6">
-              <article class="card border-0 shadow-sm rounded-3 p-3 kpi-box theme-indigo bg-white">
+              <article class="card border-0 shadow-sm rounded-3 p-3 kpi-box theme-petroleum bg-white">
                 <span class="small fw-bold text-muted">Carga Horária Total</span>
                 <strong class="display-6 fw-bold text-dark my-1" id="kpi-total-hours">0.0h</strong>
                 <span class="small text-secondary">Tempo total registrado</span>
@@ -246,7 +252,7 @@
             </div>
 
             <div class="col-xl-3 col-sm-6">
-              <article class="card border-0 shadow-sm rounded-3 p-3 kpi-box theme-emerald bg-white">
+              <article class="card border-0 shadow-sm rounded-3 p-3 kpi-box theme-sage bg-white">
                 <span class="small fw-bold text-muted">Esta Semana</span>
                 <strong class="display-6 fw-bold text-dark my-1" id="kpi-week-hours">0.0h</strong>
                 <span class="small text-secondary">Segunda a Domingo</span>
@@ -254,7 +260,7 @@
             </div>
 
             <div class="col-xl-3 col-sm-6">
-              <article class="card border-0 shadow-sm rounded-3 p-3 kpi-box theme-amber bg-white">
+              <article class="card border-0 shadow-sm rounded-3 p-3 kpi-box theme-lagoon bg-white">
                 <span class="small fw-bold text-muted">Este Mês</span>
                 <strong class="display-6 fw-bold text-dark my-1" id="kpi-month-hours">0.0h</strong>
                 <span class="small text-secondary">Progresso mensal</span>
@@ -262,7 +268,7 @@
             </div>
 
             <div class="col-xl-3 col-sm-6">
-              <article class="card border-0 shadow-sm rounded-3 p-3 kpi-box theme-rose bg-white">
+              <article class="card border-0 shadow-sm rounded-3 p-3 kpi-box theme-amber bg-white">
                 <span class="small fw-bold text-muted">Sequência (Streak)</span>
                 <strong class="display-6 fw-bold text-dark my-1" id="kpi-streak-days">0 dias</strong>
                 <span class="small text-secondary" id="kpi-longest-streak">Maior sequência: 0d</span>
@@ -349,13 +355,16 @@
             </div>
 
             <article class="card border-0 shadow-sm rounded-4 p-4 text-center">
-              <!-- Alternador de Modo -->
-              <div class="btn-group mb-4 mx-auto" role="group" aria-label="Alternar Modo Pomodoro">
-                <button type="button" class="btn btn-outline-danger active fw-bold px-4" id="btn-mode-focus">
+              <!-- Alternador do Ciclo Pomodoro (Seção 4 da Skill: Foco, Pausa Curta, Pausa Longa) -->
+              <div class="pomodoro-mode-switch mb-4 mx-auto" role="group" aria-label="Alternar Ciclo Pomodoro">
+                <button type="button" class="pomodoro-mode-tab focus active fw-bold" id="btn-mode-focus">
                   🍅 Foco (25 min)
                 </button>
-                <button type="button" class="btn btn-outline-success fw-bold px-4" id="btn-mode-break">
-                  ☕ Descanso (5 min)
+                <button type="button" class="pomodoro-mode-tab break fw-bold" id="btn-mode-break">
+                  ☕ Pausa Curta (5 min)
+                </button>
+                <button type="button" class="pomodoro-mode-tab long-break fw-bold" id="btn-mode-long-break">
+                  🌿 Pausa Longa (15 min)
                 </button>
               </div>
 

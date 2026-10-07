@@ -10,8 +10,9 @@
      1. CONSTANTES E CONFIGURAÇÃO
      ========================================================================== */
   const API_BASE = '/api';
-  const FOCUS_SECONDS = 25 * 60; // 25 minutos de estudo
-  const BREAK_SECONDS = 5 * 60;  // 5 minutos de descanso
+  const FOCUS_SECONDS = 25 * 60;       // 25 minutos de estudo
+  const SHORT_BREAK_SECONDS = 5 * 60;  // 5 minutos de pausa curta
+  const LONG_BREAK_SECONDS = 15 * 60;  // 15 minutos de pausa longa
   const CIRCUMFERENCE = 2 * Math.PI * 140; // Raio do anel SVG = 140px
 
   const DEFAULT_SUBJECTS = [
@@ -33,9 +34,9 @@
     metrics: null,
     isOnline: false,
 
-    // Pomodoro State
+    // Pomodoro State (Seção 4 da SKILL: Foco, Pausa Curta, Pausa Longa)
     pomodoro: {
-      isFocus: true,
+      mode: 'focus', // 'focus' | 'short_break' | 'long_break'
       timeLeft: FOCUS_SECONDS,
       totalDuration: FOCUS_SECONDS,
       isRunning: false,
@@ -200,25 +201,33 @@
       this.btnSkip = document.getElementById('btn-pomodoro-skip');
       this.btnFocus = document.getElementById('btn-mode-focus');
       this.btnBreak = document.getElementById('btn-mode-break');
+      this.btnLongBreak = document.getElementById('btn-mode-long-break');
       this.completedCount = document.getElementById('pomodoro-completed-count');
       this.dotsContainer = document.getElementById('pomodoro-dots-container');
       this.banner = document.getElementById('pomodoro-session-banner');
       this.sessionTitle = document.getElementById('pomodoro-session-title');
 
       // Listeners
-      this.btnToggle.addEventListener('click', () => this.toggle());
-      this.btnReset.addEventListener('click', () => this.reset());
-      this.btnSkip.addEventListener('click', () => this.skip());
-      this.btnFocus.addEventListener('click', () => this.setMode(true));
-      this.btnBreak.addEventListener('click', () => this.setMode(false));
+      this.btnToggle?.addEventListener('click', () => this.toggle());
+      this.btnReset?.addEventListener('click', () => this.reset());
+      this.btnSkip?.addEventListener('click', () => this.skip());
+      this.btnFocus?.addEventListener('click', () => this.setMode('focus'));
+      this.btnBreak?.addEventListener('click', () => this.setMode('short_break'));
+      this.btnLongBreak?.addEventListener('click', () => this.setMode('long_break'));
 
       this.updateDisplay();
     },
 
-    setMode(isFocus) {
+    setMode(mode) {
       this.pause();
-      state.pomodoro.isFocus = isFocus;
-      state.pomodoro.totalDuration = isFocus ? FOCUS_SECONDS : BREAK_SECONDS;
+      state.pomodoro.mode = mode;
+      if (mode === 'focus') {
+        state.pomodoro.totalDuration = FOCUS_SECONDS;
+      } else if (mode === 'short_break') {
+        state.pomodoro.totalDuration = SHORT_BREAK_SECONDS;
+      } else if (mode === 'long_break') {
+        state.pomodoro.totalDuration = LONG_BREAK_SECONDS;
+      }
       state.pomodoro.timeLeft = state.pomodoro.totalDuration;
       this.updateDisplay();
     },
@@ -246,17 +255,22 @@
           this.pause();
           playNotificationChime();
 
-          if (state.pomodoro.isFocus) {
+          if (state.pomodoro.mode === 'focus') {
             state.pomodoro.completedCycles++;
             if (state.pomodoro.linkedSession) {
               api.updateSession(state.pomodoro.linkedSession.id, { status: 'CONCLUIDA' })
                 .then(() => refreshAppData());
             }
-            alert('🎉 Parabéns! Você concluiu 25 minutos de estudo focado. Faça uma pausa de 5 minutos!');
-            this.setMode(false);
+            if (state.pomodoro.completedCycles % 4 === 0) {
+              alert('🎉 Excelente! 4 blocos de foco concluídos. Hora de uma Pausa Longa revigorante (15 min)!');
+              this.setMode('long_break');
+            } else {
+              alert('🎉 Bloco de foco concluído! Faça uma Pausa Curta de 5 minutos.');
+              this.setMode('short_break');
+            }
           } else {
-            alert('⏰ Fim da pausa de 5 minutos! Pronto para mais um ciclo de foco?');
-            this.setMode(true);
+            alert('⏰ Fim do descanso! Pronto para retomar os estudos?');
+            this.setMode('focus');
           }
         }
       }, 1000);
@@ -278,7 +292,11 @@
 
     skip() {
       this.pause();
-      this.setMode(!state.pomodoro.isFocus);
+      if (state.pomodoro.mode === 'focus') {
+        this.setMode('short_break');
+      } else {
+        this.setMode('focus');
+      }
     },
 
     setLinkedSession(session) {
@@ -292,7 +310,7 @@
     },
 
     updateDisplay() {
-      const { isFocus, timeLeft, totalDuration, isRunning, completedCycles } = state.pomodoro;
+      const { mode, timeLeft, totalDuration, isRunning, completedCycles } = state.pomodoro;
 
       const mins = Math.floor(timeLeft / 60);
       const secs = timeLeft % 60;
@@ -303,22 +321,33 @@
       const offset = CIRCUMFERENCE - (progress * CIRCUMFERENCE);
       this.progressRing.style.strokeDashoffset = offset;
 
-      if (isFocus) {
+      if (mode === 'focus') {
         this.progressRing.style.stroke = 'var(--pomodoro-focus)';
         this.badgeMode.className = 'timer-badge focus';
         this.badgeMode.textContent = '● MODO FOCO (25 MIN)';
         this.caption.textContent = isRunning ? 'Foco total na tarefa!' : 'Clique em Iniciar para estudar';
-        this.btnToggle.className = 'btn btn-pomodoro-primary btn-control-main';
-        this.btnFocus.className = 'mode-tab active';
-        this.btnBreak.className = 'mode-tab';
-      } else {
+        this.btnToggle.className = 'btn btn-primary btn-control-main';
+        if (this.btnFocus) this.btnFocus.className = 'pomodoro-mode-tab focus active';
+        if (this.btnBreak) this.btnBreak.className = 'pomodoro-mode-tab break';
+        if (this.btnLongBreak) this.btnLongBreak.className = 'pomodoro-mode-tab long-break';
+      } else if (mode === 'short_break') {
         this.progressRing.style.stroke = 'var(--pomodoro-break)';
         this.badgeMode.className = 'timer-badge break';
         this.badgeMode.textContent = '● PAUSA CURTA (5 MIN)';
         this.caption.textContent = isRunning ? 'Relaxe, respire e beba água!' : 'Descanso merecido';
-        this.btnToggle.className = 'btn btn-pomodoro-primary btn-control-main break';
-        this.btnFocus.className = 'mode-tab';
-        this.btnBreak.className = 'mode-tab break active';
+        this.btnToggle.className = 'btn btn-primary btn-control-main break';
+        if (this.btnFocus) this.btnFocus.className = 'pomodoro-mode-tab focus';
+        if (this.btnBreak) this.btnBreak.className = 'pomodoro-mode-tab break active';
+        if (this.btnLongBreak) this.btnLongBreak.className = 'pomodoro-mode-tab long-break';
+      } else if (mode === 'long_break') {
+        this.progressRing.style.stroke = 'var(--pomodoro-long-break)';
+        this.badgeMode.className = 'timer-badge long-break';
+        this.badgeMode.textContent = '● PAUSA LONGA (15 MIN)';
+        this.caption.textContent = isRunning ? 'Alongue-se e recupere as energias!' : 'Descanso amplo e merecido';
+        this.btnToggle.className = 'btn btn-primary btn-control-main long-break';
+        if (this.btnFocus) this.btnFocus.className = 'pomodoro-mode-tab focus';
+        if (this.btnBreak) this.btnBreak.className = 'pomodoro-mode-tab break';
+        if (this.btnLongBreak) this.btnLongBreak.className = 'pomodoro-mode-tab long-break active';
       }
 
       // Marcadores de Ciclos
@@ -438,7 +467,7 @@
         return `
           <tr data-id="${s.id}">
             <td style="font-weight: 700; color: var(--color-text-title);">${dateDisplay}</td>
-            <td><strong style="color: var(--color-primary);">${s.subjectName}</strong></td>
+            <td>${getSubjectBadge(s.subjectName, s.subjectId)}</td>
             <td>${s.topic || '-'}</td>
             <td>${getActivityBadge(s.activityType)}</td>
             <td>${s.durationMinutes || 25} min</td>
@@ -730,8 +759,56 @@
   };
 
   /* ==========================================================================
-     10. HELPERS & RENDERIZADORES AUXILIARES
+     10. GERENCIADOR DE TEMA CLARO / ESCURO (SEÇÃO 7 DA SKILL)
      ========================================================================== */
+  const themeManager = {
+    init() {
+      this.btnToggle = document.getElementById('btn-theme-toggle');
+      this.icon = document.getElementById('theme-toggle-icon');
+      this.text = document.getElementById('theme-toggle-text');
+
+      const savedTheme = localStorage.getItem('app_theme') || 'light';
+      this.applyTheme(savedTheme);
+
+      if (this.btnToggle) {
+        this.btnToggle.addEventListener('click', () => {
+          const current = document.documentElement.getAttribute('data-theme') || 'light';
+          const next = current === 'dark' ? 'light' : 'dark';
+          this.applyTheme(next);
+        });
+      }
+    },
+
+    applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('app_theme', theme);
+
+      if (this.icon && this.text) {
+        if (theme === 'dark') {
+          this.icon.className = 'bi bi-sun-fill text-warning';
+          this.text.textContent = 'Tema Claro';
+        } else {
+          this.icon.className = 'bi bi-moon-stars-fill';
+          this.text.textContent = 'Tema Escuro';
+        }
+      }
+    }
+  };
+
+  /* ==========================================================================
+     11. HELPERS & RENDERIZADORES AUXILIARES
+     ========================================================================== */
+  function getSubjectBadge(subjectName, subjectId) {
+    const sub = state.subjects.find(s => s.id === subjectId || s.name === subjectName);
+    const hex = sub ? sub.hexColor : '#3A7D8C';
+    // Conforme Seção 6 da SKILL:
+    // Grafite #3E4042 em tons claros (lagoa #7FB3D1, sálvia #7FA99B, cinza-azulado #8A9BAA, areia #C9B99A)
+    // Branco #FFFFFF apenas em tons escuros (petróleo #3A7D8C, azul-aço #5F7F99)
+    const upperHex = hex.toUpperCase();
+    const darkTones = ['#3A7D8C', '#5F7F99'];
+    const textColor = darkTones.includes(upperHex) ? '#FFFFFF' : '#3E4042';
+    return `<span class="subject-pill" style="background-color: ${hex}; color: ${textColor};">${subjectName || 'Geral'}</span>`;
+  }
   function getStatusBadge(status) {
     switch (status) {
       case 'CONCLUIDA': return '<span class="badge status-concluida">✔ Concluída</span>';
@@ -880,6 +957,7 @@
      12. INICIALIZAÇÃO DA APLICAÇÃO (DOM READY)
      ========================================================================== */
   document.addEventListener('DOMContentLoaded', async () => {
+    themeManager.init();
     navigation.init();
     pomodoro.init();
     scheduling.init();
