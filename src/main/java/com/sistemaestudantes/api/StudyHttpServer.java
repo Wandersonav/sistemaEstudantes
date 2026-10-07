@@ -39,6 +39,7 @@ public class StudyHttpServer {
     private final StudyAnalyticsService analyticsService;
     private final ObjectMapper objectMapper;
     private HttpServer server;
+    private int actualPort;
 
     public StudyHttpServer(int port,
                            StudySessionRepository sessionRepository,
@@ -46,6 +47,7 @@ public class StudyHttpServer {
                            McpClientService mcpClientService,
                            StudyAnalyticsService analyticsService) {
         this.port = port;
+        this.actualPort = port;
         this.sessionRepository = sessionRepository;
         this.subjectRepository = subjectRepository;
         this.mcpClientService = mcpClientService;
@@ -57,7 +59,15 @@ public class StudyHttpServer {
     }
 
     public void start() throws IOException {
-        server = HttpServer.create(new InetSocketAddress(port), 0);
+        try {
+            server = HttpServer.create(new InetSocketAddress(port), 0);
+            this.actualPort = port;
+        } catch (java.net.BindException e) {
+            int fallbackPort = port + 1;
+            System.out.println("⚠️ Porta " + port + " ocupada por outro processo. Alternando automaticamente para a porta " + fallbackPort + "...");
+            server = HttpServer.create(new InetSocketAddress(fallbackPort), 0);
+            this.actualPort = fallbackPort;
+        }
         server.setExecutor(Executors.newFixedThreadPool(8));
 
         // Registra endpoints RESTful
@@ -70,7 +80,11 @@ public class StudyHttpServer {
         server.createContext("/", this::handleStaticFiles);
 
         server.start();
-        System.out.println("🚀 [Servidor Fullstack] Aplicação e API disponíveis em http://localhost:" + port);
+        System.out.println("🚀 [Servidor Web] Interface Web (index.html) e API prontas em: http://localhost:" + actualPort);
+    }
+
+    public int getPort() {
+        return actualPort;
     }
 
     public void stop() {

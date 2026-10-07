@@ -1,6 +1,5 @@
 package com.sistemaestudantes.scheduling.domain;
 
-import java.awt.Color;
 import java.util.Objects;
 
 /**
@@ -16,7 +15,7 @@ public class Subject {
         this.id = id;
         this.name = name;
         this.code = code;
-        this.hexColor = hexColor != null ? hexColor : "#3498DB";
+        this.hexColor = hexColor != null ? hexColor : "#3A7D8C";
     }
 
     public String getId() {
@@ -33,14 +32,6 @@ public class Subject {
 
     public String getHexColor() {
         return hexColor;
-    }
-
-    public Color getAwtColor() {
-        try {
-            return Color.decode(hexColor);
-        } catch (Exception e) {
-            return new Color(52, 152, 219);
-        }
     }
 
     @Override

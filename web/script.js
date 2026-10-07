@@ -15,12 +15,12 @@
   const CIRCUMFERENCE = 2 * Math.PI * 140; // Raio do anel SVG = 140px
 
   const DEFAULT_SUBJECTS = [
-    { id: 'subj-1', name: 'Algoritmos e Estruturas de Dados', code: 'AED', hexColor: '#4f46e5' },
-    { id: 'subj-2', name: 'Cálculo Diferencial e Integral', code: 'CALC', hexColor: '#ef4444' },
-    { id: 'subj-3', name: 'Arquitetura de Software', code: 'ARQ', hexColor: '#8b5cf6' },
-    { id: 'subj-4', name: 'Banco de Dados e SQL', code: 'BD', hexColor: '#10b981' },
-    { id: 'subj-5', name: 'Redes de Computadores', code: 'REDES', hexColor: '#f59e0b' },
-    { id: 'subj-6', name: 'Inteligência Artificial e ML', code: 'IA', hexColor: '#06b6d4' }
+    { id: 'subj-1', name: 'Algoritmos e Estruturas de Dados', code: 'AED', hexColor: '#3A7D8C' },
+    { id: 'subj-2', name: 'Cálculo Diferencial e Integral', code: 'CALC', hexColor: '#7FB3D1' },
+    { id: 'subj-3', name: 'Arquitetura de Software', code: 'ARQ', hexColor: '#7FA99B' },
+    { id: 'subj-4', name: 'Banco de Dados e SQL', code: 'BD', hexColor: '#8A9BAA' },
+    { id: 'subj-5', name: 'Redes de Computadores', code: 'REDES', hexColor: '#5F7F99' },
+    { id: 'subj-6', name: 'Inteligência Artificial e ML', code: 'IA', hexColor: '#C9B99A' }
   ];
 
   /* ==========================================================================
@@ -850,9 +850,9 @@
       statusText.textContent = 'API Java Conectada';
     } else {
       statusPill.className = 'connection-status';
-      statusPill.style.backgroundColor = '#f1f5f9';
-      statusPill.style.color = '#475569';
-      statusPill.style.borderColor = '#cbd5e1';
+      statusPill.style.backgroundColor = 'var(--color-bg-panel)';
+      statusPill.style.color = 'var(--color-text-body)';
+      statusPill.style.borderColor = 'var(--color-border)';
       statusText.textContent = 'Modo Local Autônomo';
     }
 

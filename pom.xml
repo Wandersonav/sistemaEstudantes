@@ -8,25 +8,17 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>Sistema de Estudantes - Pomodoro Timer</name>
-    <description>Aplicativo de cronômetro Pomodoro em Java Swing com interface moderna</description>
+    <name>Sistema de Estudantes — Servidor Web &amp; API</name>
+    <description>Backend RESTful e servidor HTTP em Java para a aplicacao Web (index.html)</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <flatlaf.version>3.5.4</flatlaf.version>
         <junit.version>5.10.2</junit.version>
     </properties>
 
     <dependencies>
-        <!-- FlatLaf: Look and Feel moderno e responsivo para Swing -->
-        <dependency>
-            <groupId>com.formdev</groupId>
-            <artifactId>flatlaf</artifactId>
-            <version>${flatlaf.version}</version>
-        </dependency>
-
         <!-- Jackson: Manipulação e serialização de JSON para payloads MCP e persistência -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
