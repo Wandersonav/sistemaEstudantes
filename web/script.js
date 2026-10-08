@@ -243,7 +243,9 @@
     start() {
       if (state.pomodoro.isRunning) return;
       state.pomodoro.isRunning = true;
-      this.btnToggle.textContent = '⏸ Pausar';
+      const toggleText = document.getElementById('btn-pomodoro-toggle-text');
+      if (toggleText) toggleText.textContent = 'Pausar';
+      else this.btnToggle.textContent = 'Pausar';
 
       state.pomodoro.intervalId = setInterval(() => {
         if (state.pomodoro.timeLeft > 0) {
@@ -280,7 +282,9 @@
     pause() {
       state.pomodoro.isRunning = false;
       clearInterval(state.pomodoro.intervalId);
-      this.btnToggle.textContent = '▶ Iniciar';
+      const toggleText = document.getElementById('btn-pomodoro-toggle-text');
+      if (toggleText) toggleText.textContent = 'Iniciar';
+      else this.btnToggle.textContent = 'Iniciar';
       this.updateDisplay();
     },
 
@@ -323,29 +327,26 @@
 
       if (mode === 'focus') {
         this.progressRing.style.stroke = 'var(--pomodoro-focus)';
-        this.badgeMode.className = 'timer-badge focus';
-        this.badgeMode.textContent = '● MODO FOCO (25 MIN)';
+        this.badgeMode.className = 'timer-mode-badge focus';
+        this.badgeMode.textContent = 'MODO FOCO (25 MIN)';
         this.caption.textContent = isRunning ? 'Foco total na tarefa!' : 'Clique em Iniciar para estudar';
-        this.btnToggle.className = 'btn btn-primary btn-control-main';
-        if (this.btnFocus) this.btnFocus.className = 'pomodoro-mode-tab focus active';
+        if (this.btnFocus) this.btnFocus.className = 'pomodoro-mode-tab active';
         if (this.btnBreak) this.btnBreak.className = 'pomodoro-mode-tab break';
         if (this.btnLongBreak) this.btnLongBreak.className = 'pomodoro-mode-tab long-break';
       } else if (mode === 'short_break') {
         this.progressRing.style.stroke = 'var(--pomodoro-break)';
-        this.badgeMode.className = 'timer-badge break';
-        this.badgeMode.textContent = '● PAUSA CURTA (5 MIN)';
+        this.badgeMode.className = 'timer-mode-badge break';
+        this.badgeMode.textContent = 'PAUSA CURTA (5 MIN)';
         this.caption.textContent = isRunning ? 'Relaxe, respire e beba água!' : 'Descanso merecido';
-        this.btnToggle.className = 'btn btn-primary btn-control-main break';
-        if (this.btnFocus) this.btnFocus.className = 'pomodoro-mode-tab focus';
+        if (this.btnFocus) this.btnFocus.className = 'pomodoro-mode-tab';
         if (this.btnBreak) this.btnBreak.className = 'pomodoro-mode-tab break active';
         if (this.btnLongBreak) this.btnLongBreak.className = 'pomodoro-mode-tab long-break';
       } else if (mode === 'long_break') {
         this.progressRing.style.stroke = 'var(--pomodoro-long-break)';
-        this.badgeMode.className = 'timer-badge long-break';
-        this.badgeMode.textContent = '● PAUSA LONGA (15 MIN)';
+        this.badgeMode.className = 'timer-mode-badge long-break';
+        this.badgeMode.textContent = 'PAUSA LONGA (15 MIN)';
         this.caption.textContent = isRunning ? 'Alongue-se e recupere as energias!' : 'Descanso amplo e merecido';
-        this.btnToggle.className = 'btn btn-primary btn-control-main long-break';
-        if (this.btnFocus) this.btnFocus.className = 'pomodoro-mode-tab focus';
+        if (this.btnFocus) this.btnFocus.className = 'pomodoro-mode-tab';
         if (this.btnBreak) this.btnBreak.className = 'pomodoro-mode-tab break';
         if (this.btnLongBreak) this.btnLongBreak.className = 'pomodoro-mode-tab long-break active';
       }
@@ -454,8 +455,8 @@
       if (filtered.length === 0) {
         this.tableBody.innerHTML = `
           <tr>
-            <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--color-text-muted);">
-              Nenhum bloco de estudo encontrado. Agende sua primeira sessão no formulário acima!
+            <td colspan="8" style="text-align: center; padding: 40px 16px; color: var(--color-text-muted);">
+              Nenhum bloco de estudo encontrado. Agende sua primeira sessão no formulário acima.
             </td>
           </tr>
         `;
@@ -466,28 +467,44 @@
         const dateDisplay = s.startTime ? s.startTime.replace('T', ' ').substring(0, 16) : '-';
         return `
           <tr data-id="${s.id}">
-            <td style="font-weight: 700; color: var(--color-text-title);">${dateDisplay}</td>
+            <td style="font-weight: 600; color: var(--color-text-title); white-space: nowrap;">${dateDisplay}</td>
             <td>${getSubjectBadge(s.subjectName, s.subjectId)}</td>
-            <td>${s.topic || '-'}</td>
+            <td style="font-weight: 500;">${s.topic || '-'}</td>
             <td>${getActivityBadge(s.activityType)}</td>
-            <td>${s.durationMinutes || 25} min</td>
+            <td style="font-weight: 600; color: var(--color-text-title);">${s.durationMinutes || 25} min</td>
             <td>${getStatusBadge(s.status)}</td>
             <td>${getSyncBadge(s.syncStatus)}</td>
-            <td class="col-actions">
-              <div class="action-buttons-group">
-                <button type="button" class="btn btn-sm btn-pomodoro-accent btn-action-pomodoro" title="Iniciar no Pomodoro">
-                  🍅 Pomodoro
+            <td>
+              <div class="row-actions-group">
+                <button type="button" class="btn-row-action action-pomodoro btn-action-pomodoro" title="Iniciar no Pomodoro">
+                  <svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24">
+                    <circle cx="12" cy="14" r="8"/>
+                    <line x1="12" y1="2" x2="12" y2="6"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/>
+                  </svg>
+                  <span>Pomodoro</span>
                 </button>
-                <button type="button" class="btn btn-sm btn-secondary btn-action-mcp" title="Sincronizar no Google Calendar">
-                  🔄 MCP
+                <button type="button" class="btn-row-action btn-action-mcp" title="Sincronizar no Google Calendar">
+                  <svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24">
+                    <polyline points="23 4 23 10 17 10"/>
+                    <polyline points="1 20 1 14 7 14"/>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                  </svg>
+                  <span>MCP</span>
                 </button>
                 ${s.status !== 'CONCLUIDA' ? `
-                  <button type="button" class="btn btn-sm btn-secondary btn-action-complete" title="Marcar como Concluída">
-                    ✔
+                  <button type="button" class="btn-row-action action-complete btn-action-complete" title="Marcar como Concluída">
+                    <svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    <span>Concluir</span>
                   </button>
                 ` : ''}
-                <button type="button" class="btn btn-sm btn-danger-sm btn-action-delete" title="Excluir">
-                  🗑
+                <button type="button" class="btn-row-action action-delete btn-action-delete" title="Excluir">
+                  <svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
                 </button>
               </div>
             </td>
@@ -555,7 +572,7 @@
       this.kpiLongest.textContent = `Maior sequência: ${metrics.longestStreakDays || 0}d`;
 
       // Atualiza badge no menu lateral
-      document.getElementById('badge-streak-count').textContent = `🔥 ${metrics.currentStreakDays || 0}d`;
+      document.getElementById('badge-streak-count').textContent = `${metrics.currentStreakDays || 0}d`;
 
       // Visão Semanal
       const weekDays = [
@@ -785,10 +802,10 @@
 
       if (this.icon && this.text) {
         if (theme === 'dark') {
-          this.icon.className = 'bi bi-sun-fill text-warning';
+          this.icon.innerHTML = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
           this.text.textContent = 'Tema Claro';
         } else {
-          this.icon.className = 'bi bi-moon-stars-fill';
+          this.icon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
           this.text.textContent = 'Tema Escuro';
         }
       }
@@ -811,28 +828,28 @@
   }
   function getStatusBadge(status) {
     switch (status) {
-      case 'CONCLUIDA': return '<span class="badge status-concluida">✔ Concluída</span>';
-      case 'EM_ANDAMENTO': return '<span class="badge status-em-andamento">⏳ Em Andamento</span>';
-      case 'CANCELADA': return '<span class="badge status-cancelada">✖ Cancelada</span>';
-      default: return '<span class="badge status-planejada">📅 Planejada</span>';
+      case 'CONCLUIDA': return '<span class="badge-pill status-concluida"><span class="pill-dot"></span>Concluída</span>';
+      case 'EM_ANDAMENTO': return '<span class="badge-pill status-em-andamento"><span class="pill-dot"></span>Em Andamento</span>';
+      case 'CANCELADA': return '<span class="badge-pill status-cancelada"><span class="pill-dot"></span>Cancelada</span>';
+      default: return '<span class="badge-pill status-planejada"><span class="pill-dot"></span>Planejada</span>';
     }
   }
 
   function getSyncBadge(sync) {
     switch (sync) {
-      case 'SINCRONIZADO': return '<span class="badge sync-sincronizado">🟢 Sincronizado</span>';
-      case 'PENDENTE': return '<span class="badge sync-pendente">🟡 Sincronizando</span>';
-      case 'FALHA': return '<span class="badge sync-falha">🔴 Falha (Offline)</span>';
-      default: return '<span class="badge sync-nao">⚪ Não Sincronizado</span>';
+      case 'SINCRONIZADO': return '<span class="badge-pill sync-sincronizado"><span class="pill-dot"></span>Sincronizado</span>';
+      case 'PENDENTE': return '<span class="badge-pill status-em-andamento"><span class="pill-dot"></span>Sincronizando</span>';
+      case 'FALHA': return '<span class="badge-pill status-cancelada"><span class="pill-dot"></span>Falha</span>';
+      default: return '<span class="badge-pill sync-nao"><span class="pill-dot"></span>Não Sincronizado</span>';
     }
   }
 
   function getActivityBadge(type) {
     switch (type) {
-      case 'EXERCICIOS': return '<span class="badge type-exercicios">Exercícios</span>';
-      case 'REVISAO': return '<span class="badge type-revisao">Revisão</span>';
-      case 'SIMULADO': return '<span class="badge type-simulado">Simulado</span>';
-      default: return '<span class="badge type-teoria">Teoria</span>';
+      case 'EXERCICIOS': return '<span class="badge-pill activity-neutral">Exercícios</span>';
+      case 'REVISAO': return '<span class="badge-pill activity-neutral">Revisão</span>';
+      case 'SIMULADO': return '<span class="badge-pill activity-neutral">Simulado</span>';
+      default: return '<span class="badge-pill activity-neutral">Teoria</span>';
     }
   }
 
@@ -923,13 +940,10 @@
     const statusPill = document.getElementById('connection-status-pill');
     const statusText = document.getElementById('connection-status-text');
     if (state.isOnline) {
-      statusPill.className = 'connection-status online';
+      statusPill.className = 'connection-pill';
       statusText.textContent = 'API Java Conectada';
     } else {
-      statusPill.className = 'connection-status';
-      statusPill.style.backgroundColor = 'var(--color-bg-panel)';
-      statusPill.style.color = 'var(--color-text-body)';
-      statusPill.style.borderColor = 'var(--color-border)';
+      statusPill.className = 'connection-pill offline';
       statusText.textContent = 'Modo Local Autônomo';
     }
 

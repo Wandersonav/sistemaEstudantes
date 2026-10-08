@@ -1,121 +1,179 @@
 ---
-name: color-guidelines
+name: design-guidelines
 description: >-
-  Diretrizes e paleta oficial de cores do Sistema de Estudantes (Swing e Web).
-  Utilize esta skill sempre que for criar, estilizar ou ajustar componentes de interface,
-  gráficos, temas, estados de sessão ou elementos visuais do sistema.
+  Diretrizes de design, layout, tipografia e componentes do Sistema de Estudantes (Swing e Web).
+  Utilize esta skill sempre que for criar, estilizar ou refatorar telas, formulários, cards,
+  botões, inputs, menus laterais, cabeçalhos, tabelas ou qualquer elemento de interface,
+  e quando for pedido para padronizar o visual conforme a tela de Planejamento & Agenda de Estudos.
+  As cores vêm da skill color-guidelines; esta skill define todo o restante.
 ---
 
-# Diretrizes de Cores do Sistema
+# Diretrizes de Design do Sistema
 
-Guia oficial para padronização cromática e identidade visual da aplicação (Desktop Swing e Web).
+Guia oficial de estrutura visual, hierarquia e componentes da aplicação (Desktop Swing e Web). Todas as cores devem vir dos tokens da skill `color-guidelines`; esta skill não define cores novas.
 
 ---
 
 ## 1. Visão Geral e Princípios
 
-**Conceito:** visual sereno, limpo e arejado, inspirado em névoa, água geotérmica e céu nublado. Muito espaço em branco, contraste suave e transições esfumaçadas entre as cores. A paleta é baseada em **branco e azul-acinzentado**, com um único acento saturado (azul-petróleo).
+**Conceito:** interface moderna, limpa e minimalista, em light mode, com muito espaço em branco e hierarquia visual clara. A tela de referência é "Planejamento & Agenda de Estudos": sidebar à esquerda, cabeçalho de página e conteúdo em cards arredondados.
 
 **Princípios:**
-- **Proporção sugerida:** 70% branco, 20% azul-acinzentado claro, 7% cinza-grafite (texto), 3% azul-petróleo (acentos).
-- **Contraste:** texto grafite sobre fundos claros; nunca usar texto branco sobre azul-lagoa claro. Manter contraste mínimo WCAG AA (4.5:1) para texto corrente.
-- **Gradientes:** sempre suaves, do azul-lagoa para o branco, simulando névoa. Evitar transições bruscas.
-- **Sobreposições:** blocos em azul-gelo com opacidade parcial (60–80%) sobre imagens ou fundo branco.
-- **Tipografia:** sans-serif de traço limpo, títulos em semibold e textos em peso leve, na cor grafite.
-- **Sensação geral:** calma, pureza, bem-estar, tecnologia leve e profissional. Evitar cores quentes ou saturadas, exceto o azul-petróleo pontual e as cores semânticas da seção 3.
-- O azul-lagoa (`#9CC5DE` a `#7FB3D1`) é decorativo: usar em degradês, ilustrações e fundos, **nunca para texto**.
+- **Menos é mais:** cada tela tem um título, uma ação principal e o restante em segundo plano.
+- **Espaço em branco:** respeitar a escala de espaçamento; evitar blocos densos e bordas desnecessárias.
+- **Hierarquia:** tamanho, peso e cor guiam o olhar (título > rótulo > texto de apoio).
+- **Consistência:** mesmos raios, alturas, espaçamentos e ícones em todo o sistema; reutilizar componentes antes de criar novos.
+- **Acento único:** apenas `--color-primary` como cor de ação; sem gradientes fortes, sombras pesadas ou cores extras.
+- **Usabilidade:** rótulos sempre visíveis, estados claros (foco, hover, desabilitado, erro) e textos em português do Brasil.
 
 ---
 
-## 2. Paleta Base e Fundos (Tokens de Interface)
+## 2. Tipografia
 
-| Elemento | Token / Variável | Hex / RGB | Uso / Descrição |
+**Fonte:** Plus Jakarta Sans (pesos 400, 500, 600, 700). Fallback: `system-ui, sans-serif` (Web) e `SansSerif` (Swing).
+
+| Elemento | Token / Variável | Tamanho | Peso | Cor |
+| :--- | :--- | :--- | :--- | :--- |
+| Título da página (h1) | `--text-h1` | 26px | 700, letter-spacing -0.02em | `--color-text-title` |
+| Título de card (h2) | `--text-h2` | 18px | 700, letter-spacing -0.01em | `--color-text-title` |
+| Nome do app / destaque | `--text-lg` | 16px | 700 | `--color-text-title` |
+| Corpo, inputs, menu | `--text-md` | 14px | 500 | `--color-text-title` |
+| Rótulo de campo | `--text-label` | 13px | 600 | `--color-text-title` |
+| Texto de apoio, subtítulo | `--text-sm` | 12–14px | 400–500 | `--color-text-body` |
+| Eyebrow (ex.: "MÓDULOS") | `--text-eyebrow` | 11px | 600, caixa alta, letter-spacing 0.08em | `--color-text-body` |
+
+---
+
+## 3. Espaçamento, Forma e Elevação (Tokens)
+
+| Elemento | Token / Variável | Valor | Uso / Descrição |
 | :--- | :--- | :--- | :--- |
-| Background da Aplicação | `--color-bg-app` | `#FFFFFF` / rgb(255, 255, 255) | Fundo principal da janela/página |
-| Fundo Alternado (branco-névoa) | `--color-bg-alt` | `#F4F7FA` / rgb(244, 247, 250) | Seções alternadas e destaques suaves |
-| Superfície / Card | `--color-bg-surface` | `#FFFFFF` / rgb(255, 255, 255) | Fundo de painéis e cartões (usar com borda ou sombra leve) |
-| Painel Azul-gelo | `--color-bg-panel` | `#E3ECF3` / rgb(227, 236, 243) | Painéis, caixas de destaque, faixas translúcidas |
-| Azul-névoa | `--color-bg-mist` | `#D3E2EC` / rgb(211, 226, 236) | Blocos sobrepostos, hover de painéis, cabeçalhos de tabela |
-| Azul-lagoa (decorativo) | `--color-lagoon` | `#9CC5DE` / rgb(156, 197, 222) | Gradientes, ilustrações, fundos (nunca texto) |
-| Azul-lagoa profundo | `--color-lagoon-deep` | `#7FB3D1` / rgb(127, 179, 209) | Fim de gradientes, elementos decorativos |
-| Borda Padrão | `--color-border` | `#D3E2EC` / rgb(211, 226, 236) | Divisórias e bordas de containers |
-| Texto Principal (títulos) | `--color-text-title` | `#3E4042` / rgb(62, 64, 66) | Títulos e textos de destaque |
-| Texto Corrente | `--color-text-body` | `#5A5D60` / rgb(90, 93, 96) | Parágrafos, subtítulos, rótulos |
+| Escala de espaçamento | `--space-1` a `--space-12` | 4, 8, 12, 16, 20, 24, 28, 32, 40, 48px | Múltiplos de 4px; nunca usar valores fora da escala |
+| Raio pequeno | `--radius-sm` | 10px | Inputs, botões, itens de menu |
+| Raio grande | `--radius-lg` | 16px | Cards e painéis |
+| Raio pílula | `--radius-pill` | 999px | Badges e pills de status |
+| Sombra de card | `--shadow-card` | `0 1px 2px rgba(62,64,66,.04), 0 8px 24px rgba(62,64,66,.04)` | Elevação sutil de cards |
+| Altura de controle | `--control-h` | 44px (inputs), 40px (botões do header), 46px (botão primário de formulário) | Altura mínima de alvos clicáveis |
 
 ---
 
-## 3. Cores Semânticas e Estados
+## 4. Layout
 
-| Estado | Token / Constante | Cor | Significado |
-| :--- | :--- | :--- | :--- |
-| Primária / Acento | `--color-primary` | `#3A7D8C` | Botões principais, links ativos, ícones, setas, estados de interação |
-| Primária (hover) | `--color-primary-hover` | `#2F6672` | Hover e pressed de botões e links |
-| Sucesso | `--color-success` | `#4C9A7A` | Sessão concluída, confirmações (verde suave, em harmonia com o petróleo) |
-| Alerta / Atenção | `--color-warning` | `#D9A441` | Avisos, pendências (âmbar dessaturado) |
-| Perigo / Erro | `--color-danger` | `#C65D5D` | Cancelamentos, ações destrutivas (vermelho suave, nunca saturado) |
-
-> As cores de sucesso, alerta e perigo foram escolhidas com saturação reduzida para não quebrar a calma da paleta. O azul-petróleo é o único acento saturado da identidade.
+- **Estrutura:** sidebar fixa de 264px (`--color-bg-surface`, borda direita `--color-border`) + coluna principal sobre `--color-bg-alt`.
+- **Cabeçalho da página:** fundo `--color-bg-surface`, padding 28px 48px, borda inferior; título e subtítulo à esquerda, ações à direita (tema, status, ação rápida).
+- **Conteúdo:** padding 40px 48px; cards com `max-width` de ~1000px.
+- **Card:** fundo `--color-bg-surface`, borda 1px `--color-border`, `--radius-lg`, padding 32px, `--shadow-card`. Cabeçalho do card com h2 e subtítulo (margem inferior 28px).
+- **Grids de formulário:** `grid-template-columns: repeat(auto-fit, minmax(170px, 1fr))` com gap de 20px; campos longos em `minmax(280px, 1fr)`.
+- **Rodapé de ação:** separado por borda superior, opção/checkbox à esquerda e botão primário à direita.
+- **Responsivo:** abaixo de 860px a sidebar é ocultada (ou vira menu recolhível); grids empilham; tabelas largas rolam dentro do próprio container.
 
 ---
 
-## 4. Ciclo Pomodoro
+## 5. Componentes
 
-- **Modo Foco:** `#3A7D8C` (azul-petróleo), concentração e ação.
-- **Pausa Curta (Short Break):** `#7FB3D1` (azul-lagoa profundo), respiro leve.
-- **Pausa Longa (Long Break):** `#9CC5DE` (azul-lagoa), descanso amplo. Usar texto grafite `#3E4042` sobre este fundo.
+### 5.1 Input, Select, Data e Hora
 
----
+| Propriedade | Valor |
+| :--- | :--- |
+| Altura / padding | 44px / 0 14px |
+| Borda | 1px `--color-border` (foco: `--color-primary`) |
+| Raio / fundo | `--radius-sm` / `--color-bg-surface` |
+| Texto | 14px, peso 500, `--color-text-title` |
+| Placeholder | `--color-text-body` |
+| Rótulo | Sempre acima do campo (gap de 8px); nunca usar o placeholder como rótulo |
+| Select | Sem aparência nativa + chevron de 16px à direita (padding-right 40px) |
+| Foco | Anel de 3px com `--color-primary` a 25% de opacidade |
+| Erro | Borda `--color-danger` e mensagem de 12px abaixo do campo |
 
-## 5. Heatmap de Atividade (Níveis de Intensidade)
+### 5.2 Botões
 
-Escala monocromática do branco-névoa ao azul-petróleo, intensificando conforme o tempo de estudo.
-
-- **Nível 0 (Sem estudo):** `#EEF2F6`
-- **Nível 1 (1 - 59 min):** `#D3E2EC`
-- **Nível 2 (60 - 119 min):** `#9CC5DE`
-- **Nível 3 (120 - 179 min):** `#5A9FB5`
-- **Nível 4 (180+ min):** `#3A7D8C`
-
----
-
-## 6. Cores das Disciplinas (Subjects)
-
-Cores de disciplinas devem ser **suaves e dessaturadas**, na família azul-acinzentada, para manter a harmonia visual. Sugestão de mapeamento (ajustar conforme as matérias cadastradas):
-
-| Ordem | Cor | Hex |
+| Tipo | Estilo | Uso |
 | :--- | :--- | :--- |
-| 1 | Azul-petróleo | `#3A7D8C` |
-| 2 | Azul-lagoa | `#7FB3D1` |
-| 3 | Verde-sálvia | `#7FA99B` |
-| 4 | Cinza-azulado | `#8A9BAA` |
-| 5 | Azul-aço | `#5F7F99` |
-| 6 | Areia suave | `#C9B99A` |
+| Primário | Fundo `--color-primary`, texto branco, 14px/600, `--radius-sm`, ícone de 16–18px à esquerda; hover `--color-primary-hover` | Uma única ação principal por área visível |
+| Secundário | Fundo `--color-bg-surface`, borda `--color-border`, texto `--color-text-title`, 13px/600 | Ações de apoio (ex.: tema, cancelar) |
+| Perigo | Texto/borda `--color-danger`, fundo branco | Ações destrutivas |
+| Desabilitado | Opacidade 50%, sem sombra, cursor padrão | Ação indisponível |
 
-**Regras:**
-- Evitar cores quentes saturadas e neons.
-- Texto sobre a cor da disciplina deve ter contraste adequado: grafite `#3E4042` em tons claros, branco `#FFFFFF` apenas em tons escuros (petróleo, azul-aço).
-- Cada disciplina mantém a mesma cor em todo o sistema (gráficos, listas, calendário, heatmap por matéria).
+### 5.3 Pills e Badges de Status
+
+| Variante | Cores | Exemplo |
+| :--- | :--- | :--- |
+| Sucesso / online | Texto `--color-success`, fundo `--color-success` a 12% | "API conectada", "Ativo" |
+| Neutro (contador) | Texto `--color-text-body`, fundo `--color-bg-panel` | "8", "0d", "25 min" |
+| Alerta | Texto `--color-warning` escurecido, fundo `--color-warning` a 15% | Pendências |
+| Perigo | Texto `--color-danger`, fundo `--color-danger` a 12% | Cancelado |
+
+Formato: `--radius-pill`; no cabeçalho com 40px de altura, em listas compacto (padding 2px 8px, 12px/600). Pills de sucesso levam um ponto de 8px à esquerda.
+
+### 5.4 Sidebar
+
+- Logo de 40px com `--radius-sm` em `--color-primary`, nome do app em 16px/700 e subtítulo em 12px.
+- Itens: padding 11px 12px, `--radius-sm`, ícone de 20px, texto de 14px, badge alinhado à direita.
+- **Ativo:** fundo `--color-bg-panel`, texto `--color-primary`, peso 600.
+- **Inativo:** texto `--color-text-body`; hover com fundo `--color-bg-alt`.
+
+### 5.5 Checkbox e Opções
+
+18px, cor de destaque `--color-primary`; título de 14px/600 e linha de apoio de 12px (`--color-text-body`) abaixo.
+
+### 5.6 Tabelas e Listas
+
+- Cabeçalho de 12px/600 em `--color-text-body`, fundo `--color-bg-mist` ou transparente.
+- Linhas com divisória de 1px `--color-border`, altura mínima de 52px, hover `--color-bg-alt`.
+- Ações de linha como botões secundários pequenos ou ícones com `aria-label`.
 
 ---
 
-## 7. Instruções Adicionais
+## 6. Ícones
 
-**Tema Claro (Light) — padrão:**
-- Fundo `#FFFFFF`, alternado `#F4F7FA`, painéis `#E3ECF3`.
-- Texto em grafite (`#3E4042` / `#5A5D60`), acento `#3A7D8C`.
+- Estilo de traço (stroke) de 1.8px, linhas arredondadas (família Lucide/Feather), `currentColor`.
+- Tamanhos: 20px no menu, 16–18px em botões, 16px em campos.
+- Nunca usar emoji na interface.
 
-**Tema Escuro (Dark) — sugestão derivada:**
-- Fundo da aplicação `#1B2329`, superfície/card `#242E36`, borda `#34424C`.
-- Texto principal `#E6EDF2`, texto corrente `#B5C2CC`.
-- Acento primário clareado para `#5FB0C0`, mantendo contraste mínimo de 4.5:1.
-- Semânticas levemente clareadas: sucesso `#6DBB9A`, alerta `#E6B85C`, perigo `#D97878`.
-- Heatmap invertido: nível 0 `#242E36` até nível 4 `#5FB0C0`.
+---
 
-**Swing (Desktop):**
-- Definir as cores como constantes `Color` centralizadas em uma classe única (ex.: `AppColors`), nunca valores hexadecimais soltos nos componentes.
-- Aplicar via `UIManager` ou LookAndFeel quando possível.
+## 7. Estados e Interação
+
+- **Foco:** sempre visível (anel de 3px); nunca remover o outline sem substituto.
+- **Hover:** mudança sutil de cor ou fundo (`--color-primary-hover`, `--color-bg-alt`); sem animações chamativas.
+- **Transições:** 120–180ms, `ease-out`, apenas em cor, fundo e sombra.
+- **Carregamento:** indicar com spinner discreto no botão e desabilitar a ação durante o envio.
+- **Vazio:** texto de apoio em `--color-text-body` e uma ação clara; sem ilustrações pesadas.
+
+---
+
+## 8. Acessibilidade
+
+- Usar elementos semânticos (`<button>`, `<a>`, `<label for>`); botões só com ícone levam `aria-label`.
+- Contraste mínimo de 4.5:1 para texto corrente (3:1 a partir de 24px), conforme `color-guidelines`.
+- Alvos clicáveis com no mínimo 40px de altura.
+- Não depender apenas da cor para comunicar estado: acompanhar de texto ou ícone.
+
+---
+
+## 9. Instruções Adicionais
 
 **Web:**
-- Declarar os tokens como variáveis CSS em `:root` e redefinir sob `[data-theme="dark"]`.
+- Importar a fonte e declarar espaçamentos, raios e sombras como variáveis CSS em `:root`, junto aos tokens de cor.
+- Tema escuro: redefinir apenas variáveis sob `[data-theme="dark"]`, sem alterar os componentes.
 
-**Observação:** os valores da paleta base foram estimados visualmente a partir da imagem de referência. As cores semânticas, do Pomodoro, heatmap, disciplinas e tema escuro são sugestões coerentes com a paleta e podem ser ajustadas conforme a necessidade.
+**Swing (Desktop):**
+- Centralizar medidas em uma classe única (ex.: `AppMetrics`) com raios, espaçamentos e alturas; cores continuam em `AppColors`.
+- Cantos arredondados via `Border` customizado (ex.: `RoundedBorder(radius)`) ou `FlatLaf`, quando disponível.
+- Fonte Plus Jakarta Sans carregada com `Font.createFont`; fallback `SansSerif`.
+
+**Regras gerais:**
+- Ao alterar telas existentes, manter comportamento e lógica; alterar apenas estrutura visual e estilos.
+- Não criar valores soltos (cores, px, raios) fora dos tokens.
+
+**Observação:** os valores desta skill foram extraídos do redesenho da tela "Planejamento & Agenda de Estudos". As cores são herdadas da skill `color-guidelines`; medidas, pesos e raios podem ser ajustados conforme a necessidade.
+
+---
+
+## 10. Checklist Antes de Finalizar
+
+- [ ] Nenhuma cor, raio, sombra ou espaçamento fora dos tokens
+- [ ] Inputs com 44px e rótulos acima
+- [ ] Apenas um botão primário por área
+- [ ] Estados implementados: hover, foco, desabilitado e erro
+- [ ] Layout validado em ~1440px e ~390px (Web) ou redimensionando a janela (Swing)
