@@ -54,7 +54,7 @@ public class SubjectRepository {
             return Collections.unmodifiableList(new ArrayList<>(fallbackSubjects));
         }
 
-        String sql = "SELECT id, name, code, hex_color FROM subjects ORDER BY id ASC";
+        String sql = "SELECT id, name, code, hex_color FROM disciplinas ORDER BY id ASC";
         List<Subject> list = new ArrayList<>();
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -81,7 +81,7 @@ public class SubjectRepository {
         if (id == null || id.isBlank()) return Optional.empty();
 
         if (databaseConfig != null && databaseConfig.isConnected()) {
-            String sql = "SELECT id, name, code, hex_color FROM subjects WHERE id = ?";
+            String sql = "SELECT id, name, code, hex_color FROM disciplinas WHERE id = ?";
             try (Connection conn = databaseConfig.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, id);
@@ -106,7 +106,7 @@ public class SubjectRepository {
         if (name == null || name.isBlank()) return Optional.empty();
 
         if (databaseConfig != null && databaseConfig.isConnected()) {
-            String sql = "SELECT id, name, code, hex_color FROM subjects WHERE LOWER(name) = LOWER(?)";
+            String sql = "SELECT id, name, code, hex_color FROM disciplinas WHERE LOWER(name) = LOWER(?)";
             try (Connection conn = databaseConfig.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, name.trim());
@@ -141,7 +141,7 @@ public class SubjectRepository {
 
     private void saveToDb(Subject subject) {
         String sql = """
-            INSERT INTO subjects (id, name, code, hex_color)
+            INSERT INTO disciplinas (id, name, code, hex_color)
             VALUES (?, ?, ?, ?)
             ON CONFLICT (id) DO UPDATE SET
                 name = EXCLUDED.name,

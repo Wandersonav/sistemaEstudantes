@@ -46,7 +46,7 @@ public class PostgresStudySessionRepository implements StudySessionRepository {
         ensureSubjectExists(session.getSubjectId(), session.getSubjectName());
 
         String sql = """
-            INSERT INTO study_sessions (
+            INSERT INTO sessoes_estudo (
                 id, subject_id, subject_name, topic, start_time, end_time,
                 duration_minutes, activity_type, status, sync_status,
                 external_event_id, sync_error_message, notes, created_at, updated_at
@@ -109,7 +109,7 @@ public class PostgresStudySessionRepository implements StudySessionRepository {
             return fallbackRepo.findById(id);
         }
 
-        String sql = "SELECT * FROM study_sessions WHERE id = ?";
+        String sql = "SELECT * FROM sessoes_estudo WHERE id = ?";
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -131,7 +131,7 @@ public class PostgresStudySessionRepository implements StudySessionRepository {
             return fallbackRepo.findAll();
         }
 
-        String sql = "SELECT * FROM study_sessions ORDER BY start_time DESC";
+        String sql = "SELECT * FROM sessoes_estudo ORDER BY start_time DESC";
         List<StudySession> list = new ArrayList<>();
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -156,7 +156,7 @@ public class PostgresStudySessionRepository implements StudySessionRepository {
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
 
-        String sql = "SELECT * FROM study_sessions WHERE start_time >= ? AND start_time <= ? ORDER BY start_time ASC";
+        String sql = "SELECT * FROM sessoes_estudo WHERE start_time >= ? AND start_time <= ? ORDER BY start_time ASC";
         List<StudySession> list = new ArrayList<>();
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -186,7 +186,7 @@ public class PostgresStudySessionRepository implements StudySessionRepository {
             return fallbackDeleted;
         }
 
-        String sql = "DELETE FROM study_sessions WHERE id = ?";
+        String sql = "DELETE FROM sessoes_estudo WHERE id = ?";
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -205,7 +205,7 @@ public class PostgresStudySessionRepository implements StudySessionRepository {
             return fallbackRepo.count();
         }
 
-        String sql = "SELECT COUNT(*) FROM study_sessions";
+        String sql = "SELECT COUNT(*) FROM sessoes_estudo";
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -221,7 +221,7 @@ public class PostgresStudySessionRepository implements StudySessionRepository {
 
     private void ensureSubjectExists(String subjectId, String subjectName) {
         if (subjectId == null || subjectId.isBlank()) return;
-        String sql = "INSERT INTO subjects (id, name, code, hex_color) VALUES (?, ?, ?, ?) ON CONFLICT (id) DO NOTHING";
+        String sql = "INSERT INTO disciplinas (id, name, code, hex_color) VALUES (?, ?, ?, ?) ON CONFLICT (id) DO NOTHING";
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, subjectId);

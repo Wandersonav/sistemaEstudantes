@@ -175,7 +175,7 @@ public class DatabaseConfig {
 
     private void executeDefaultDDL() {
         String ddl = """
-            CREATE TABLE IF NOT EXISTS subjects (
+            CREATE TABLE IF NOT EXISTS disciplinas (
                 id VARCHAR(50) PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
                 code VARCHAR(50) NOT NULL,
@@ -183,7 +183,7 @@ public class DatabaseConfig {
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             );
 
-            CREATE TABLE IF NOT EXISTS study_sessions (
+            CREATE TABLE IF NOT EXISTS sessoes_estudo (
                 id VARCHAR(50) PRIMARY KEY,
                 subject_id VARCHAR(50) NOT NULL,
                 subject_name VARCHAR(255) NOT NULL,
@@ -199,17 +199,17 @@ public class DatabaseConfig {
                 notes TEXT,
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                CONSTRAINT fk_study_sessions_subject FOREIGN KEY (subject_id) REFERENCES subjects(id) ON UPDATE CASCADE ON DELETE RESTRICT
+                CONSTRAINT fk_sessoes_estudo_disciplina FOREIGN KEY (subject_id) REFERENCES disciplinas(id) ON UPDATE CASCADE ON DELETE RESTRICT
             );
 
-            CREATE INDEX IF NOT EXISTS idx_study_sessions_subject_id ON study_sessions(subject_id);
-            CREATE INDEX IF NOT EXISTS idx_study_sessions_start_time ON study_sessions(start_time);
-            CREATE INDEX IF NOT EXISTS idx_study_sessions_status ON study_sessions(status);
+            CREATE INDEX IF NOT EXISTS idx_sessoes_estudo_subject_id ON sessoes_estudo(subject_id);
+            CREATE INDEX IF NOT EXISTS idx_sessoes_estudo_start_time ON sessoes_estudo(start_time);
+            CREATE INDEX IF NOT EXISTS idx_sessoes_estudo_status ON sessoes_estudo(status);
         """;
 
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute(ddl);
-            System.out.println("✅ [PostgreSQL] Tabelas relacionais subjects e study_sessions verificadas.");
+            System.out.println("✅ [PostgreSQL] Tabelas relacionais disciplinas e sessoes_estudo verificadas.");
         } catch (Exception e) {
             System.err.println("❌ [PostgreSQL] Erro ao executar DDL padrão: " + e.getMessage());
         }

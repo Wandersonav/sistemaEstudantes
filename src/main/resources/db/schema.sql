@@ -1,11 +1,29 @@
 -- ============================================================================
--- SISTEMA DE ESTUDANTES — ESQUEMA RELACIONAL POSTGRESQL
+-- SISTEMA DE ESTUDANTES — ESQUEMA RELACIONAL POSTGRESQL (EM PORTUGUÊS)
 -- Banco de dados: Estudantes / postgres
 -- Host: localhost | Porta: 5432 | Usuário: postgres
+-- Tabelas: disciplinas, sessoes_estudo, ciclos_pomodoro
 -- ============================================================================
 
--- 1. Tabela de Disciplinas / Matérias (subjects)
-CREATE TABLE IF NOT EXISTS subjects (
+-- Migração/compatibilidade de objetos legados
+DO $$
+BEGIN
+    EXECUTE 'DROP VIEW IF EXISTS study_sessions CASCADE';
+    EXECUTE 'DROP VIEW IF EXISTS subjects CASCADE';
+    EXECUTE 'DROP VIEW IF EXISTS pomodoro_cycles CASCADE';
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+    EXECUTE 'DROP TABLE IF EXISTS pomodoro_cycles CASCADE';
+    EXECUTE 'DROP TABLE IF EXISTS study_sessions CASCADE';
+    EXECUTE 'DROP TABLE IF EXISTS subjects CASCADE';
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+-- 1. Tabela de Disciplinas / Matérias (disciplinas)
+CREATE TABLE IF NOT EXISTS disciplinas (
     id VARCHAR(50) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     code VARCHAR(50) NOT NULL,
@@ -13,8 +31,8 @@ CREATE TABLE IF NOT EXISTS subjects (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Tabela de Sessões / Blocos de Estudo (study_sessions)
-CREATE TABLE IF NOT EXISTS study_sessions (
+-- 2. Tabela de Sessões e Blocos de Estudo (sessoes_estudo)
+CREATE TABLE IF NOT EXISTS sessoes_estudo (
     id VARCHAR(50) PRIMARY KEY,
     subject_id VARCHAR(50) NOT NULL,
     subject_name VARCHAR(255) NOT NULL,
@@ -30,33 +48,38 @@ CREATE TABLE IF NOT EXISTS study_sessions (
     notes TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_study_sessions_subject FOREIGN KEY (subject_id) 
-        REFERENCES subjects(id) ON UPDATE CASCADE ON DELETE RESTRICT
+    CONSTRAINT fk_sessoes_estudo_disciplina FOREIGN KEY (subject_id) 
+        REFERENCES disciplinas(id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
 -- 3. Índices Relacionais para Otimização de Consultas e Relatórios
-CREATE INDEX IF NOT EXISTS idx_study_sessions_subject_id ON study_sessions(subject_id);
-CREATE INDEX IF NOT EXISTS idx_study_sessions_start_time ON study_sessions(start_time);
-CREATE INDEX IF NOT EXISTS idx_study_sessions_status ON study_sessions(status);
-CREATE INDEX IF NOT EXISTS idx_study_sessions_range ON study_sessions(start_time, end_time);
+CREATE INDEX IF NOT EXISTS idx_sessoes_estudo_subject_id ON sessoes_estudo(subject_id);
+CREATE INDEX IF NOT EXISTS idx_sessoes_estudo_start_time ON sessoes_estudo(start_time);
+CREATE INDEX IF NOT EXISTS idx_sessoes_estudo_status ON sessoes_estudo(status);
+CREATE INDEX IF NOT EXISTS idx_sessoes_estudo_range ON sessoes_estudo(start_time, end_time);
 
--- 4. Tabela de Histórico de Ciclos Pomodoro (pomodoro_cycles)
-CREATE TABLE IF NOT EXISTS pomodoro_cycles (
+-- 4. Tabela de Histórico de Ciclos Pomodoro (ciclos_pomodoro)
+CREATE TABLE IF NOT EXISTS ciclos_pomodoro (
     id VARCHAR(50) PRIMARY KEY,
     session_id VARCHAR(50),
     mode VARCHAR(50) NOT NULL DEFAULT 'FOCUS',
     duration_minutes INTEGER NOT NULL DEFAULT 25,
     completed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     notes TEXT,
-    CONSTRAINT fk_pomodoro_study_session FOREIGN KEY (session_id) 
-        REFERENCES study_sessions(id) ON UPDATE CASCADE ON DELETE SET NULL
+    CONSTRAINT fk_ciclos_pomodoro_sessao FOREIGN KEY (session_id) 
+        REFERENCES sessoes_estudo(id) ON UPDATE CASCADE ON DELETE SET NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_pomodoro_session_id ON pomodoro_cycles(session_id);
-CREATE INDEX IF NOT EXISTS idx_pomodoro_completed_at ON pomodoro_cycles(completed_at);
+CREATE INDEX IF NOT EXISTS idx_ciclos_pomodoro_session_id ON ciclos_pomodoro(session_id);
+CREATE INDEX IF NOT EXISTS idx_ciclos_pomodoro_completed_at ON ciclos_pomodoro(completed_at);
 
--- 5. Carga Inicial de Disciplinas (Seed)
-INSERT INTO subjects (id, name, code, hex_color) VALUES
+-- 5. Views de Compatibilidade e Aliases (permite consultas legadas transparentes)
+CREATE OR REPLACE VIEW subjects AS SELECT * FROM disciplinas;
+CREATE OR REPLACE VIEW study_sessions AS SELECT * FROM sessoes_estudo;
+CREATE OR REPLACE VIEW pomodoro_cycles AS SELECT * FROM ciclos_pomodoro;
+
+-- 6. Carga Inicial de Disciplinas (Seed)
+INSERT INTO disciplinas (id, name, code, hex_color) VALUES
 ('subj-1', 'Algoritmos e Estruturas de Dados', 'AED', '#3A7D8C'),
 ('subj-2', 'Cálculo Diferencial e Integral', 'CALC', '#7FB3D1'),
 ('subj-3', 'Arquitetura de Software', 'ARQ', '#7FA99B'),
@@ -68,8 +91,8 @@ name = EXCLUDED.name,
 code = EXCLUDED.code,
 hex_color = EXCLUDED.hex_color;
 
--- 6. Carga Inicial de Sessões de Estudo de Demonstração (Seed)
-INSERT INTO study_sessions (id, subject_id, subject_name, topic, start_time, end_time, duration_minutes, activity_type, status, sync_status, notes) VALUES
+-- 7. Carga Inicial de Sessões de Estudo de Demonstração (Seed)
+INSERT INTO sessoes_estudo (id, subject_id, subject_name, topic, start_time, end_time, duration_minutes, activity_type, status, sync_status, notes) VALUES
 ('seed-sess-1', 'subj-1', 'Algoritmos e Estruturas de Dados', 'Árvores Binárias e AVL', CURRENT_DATE - INTERVAL '5 days' + TIME '14:00', CURRENT_DATE - INTERVAL '5 days' + TIME '15:30', 90, 'TEORIA', 'CONCLUIDA', 'SINCRONIZADO', 'Revisão de rotações simples e duplas'),
 ('seed-sess-2', 'subj-2', 'Cálculo Diferencial e Integral', 'Derivadas Parciais', CURRENT_DATE - INTERVAL '4 days' + TIME '14:00', CURRENT_DATE - INTERVAL '4 days' + TIME '15:00', 60, 'EXERCICIOS', 'CONCLUIDA', 'SINCRONIZADO', 'Lista 3 exercícios 1 a 10'),
 ('seed-sess-3', 'subj-4', 'Banco de Dados e SQL', 'Modelagem ER e Normalização', CURRENT_DATE - INTERVAL '3 days' + TIME '14:00', CURRENT_DATE - INTERVAL '3 days' + TIME '16:00', 120, 'TEORIA', 'CONCLUIDA', 'SINCRONIZADO', '1FN, 2FN, 3FN e BCNF'),
