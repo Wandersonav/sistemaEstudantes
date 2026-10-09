@@ -54,7 +54,7 @@ public class SubjectRepository {
             return Collections.unmodifiableList(new ArrayList<>(fallbackSubjects));
         }
 
-        String sql = "SELECT id, name, code, hex_color FROM disciplinas ORDER BY id ASC";
+        String sql = "SELECT id, nome, codigo, cor_hex FROM disciplinas ORDER BY id ASC";
         List<Subject> list = new ArrayList<>();
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -63,9 +63,9 @@ public class SubjectRepository {
             while (rs.next()) {
                 list.add(new Subject(
                         rs.getString("id"),
-                        rs.getString("name"),
-                        rs.getString("code"),
-                        rs.getString("hex_color")
+                        rs.getString("nome"),
+                        rs.getString("codigo"),
+                        rs.getString("cor_hex")
                 ));
             }
             if (!list.isEmpty()) {
@@ -81,7 +81,7 @@ public class SubjectRepository {
         if (id == null || id.isBlank()) return Optional.empty();
 
         if (databaseConfig != null && databaseConfig.isConnected()) {
-            String sql = "SELECT id, name, code, hex_color FROM disciplinas WHERE id = ?";
+            String sql = "SELECT id, nome, codigo, cor_hex FROM disciplinas WHERE id = ?";
             try (Connection conn = databaseConfig.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, id);
@@ -89,9 +89,9 @@ public class SubjectRepository {
                     if (rs.next()) {
                         return Optional.of(new Subject(
                                 rs.getString("id"),
-                                rs.getString("name"),
-                                rs.getString("code"),
-                                rs.getString("hex_color")
+                                rs.getString("nome"),
+                                rs.getString("codigo"),
+                                rs.getString("cor_hex")
                         ));
                     }
                 }
@@ -106,7 +106,7 @@ public class SubjectRepository {
         if (name == null || name.isBlank()) return Optional.empty();
 
         if (databaseConfig != null && databaseConfig.isConnected()) {
-            String sql = "SELECT id, name, code, hex_color FROM disciplinas WHERE LOWER(name) = LOWER(?)";
+            String sql = "SELECT id, nome, codigo, cor_hex FROM disciplinas WHERE LOWER(nome) = LOWER(?)";
             try (Connection conn = databaseConfig.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, name.trim());
@@ -114,9 +114,9 @@ public class SubjectRepository {
                     if (rs.next()) {
                         return Optional.of(new Subject(
                                 rs.getString("id"),
-                                rs.getString("name"),
-                                rs.getString("code"),
-                                rs.getString("hex_color")
+                                rs.getString("nome"),
+                                rs.getString("codigo"),
+                                rs.getString("cor_hex")
                         ));
                     }
                 }
@@ -141,12 +141,12 @@ public class SubjectRepository {
 
     private void saveToDb(Subject subject) {
         String sql = """
-            INSERT INTO disciplinas (id, name, code, hex_color)
+            INSERT INTO disciplinas (id, nome, codigo, cor_hex)
             VALUES (?, ?, ?, ?)
             ON CONFLICT (id) DO UPDATE SET
-                name = EXCLUDED.name,
-                code = EXCLUDED.code,
-                hex_color = EXCLUDED.hex_color
+                nome = EXCLUDED.nome,
+                codigo = EXCLUDED.codigo,
+                cor_hex = EXCLUDED.cor_hex
         """;
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

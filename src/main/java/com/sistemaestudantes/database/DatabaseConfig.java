@@ -177,33 +177,33 @@ public class DatabaseConfig {
         String ddl = """
             CREATE TABLE IF NOT EXISTS disciplinas (
                 id VARCHAR(50) PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
-                code VARCHAR(50) NOT NULL,
-                hex_color VARCHAR(20) NOT NULL DEFAULT '#3A7D8C',
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                nome VARCHAR(255) NOT NULL,
+                codigo VARCHAR(50) NOT NULL,
+                cor_hex VARCHAR(20) NOT NULL DEFAULT '#3A7D8C',
+                criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             );
 
             CREATE TABLE IF NOT EXISTS sessoes_estudo (
                 id VARCHAR(50) PRIMARY KEY,
-                subject_id VARCHAR(50) NOT NULL,
-                subject_name VARCHAR(255) NOT NULL,
-                topic VARCHAR(255) NOT NULL,
-                start_time TIMESTAMP NOT NULL,
-                end_time TIMESTAMP NOT NULL,
-                duration_minutes INTEGER NOT NULL DEFAULT 25,
-                activity_type VARCHAR(50) NOT NULL DEFAULT 'TEORIA',
+                disciplina_id VARCHAR(50) NOT NULL,
+                disciplina_nome VARCHAR(255) NOT NULL,
+                topico VARCHAR(255) NOT NULL,
+                data_inicio TIMESTAMP NOT NULL,
+                data_fim TIMESTAMP NOT NULL,
+                duracao_minutos INTEGER NOT NULL DEFAULT 25,
+                tipo_atividade VARCHAR(50) NOT NULL DEFAULT 'TEORIA',
                 status VARCHAR(50) NOT NULL DEFAULT 'PLANEJADA',
-                sync_status VARCHAR(50) NOT NULL DEFAULT 'NAO_SINCRONIZADO',
-                external_event_id VARCHAR(255),
-                sync_error_message TEXT,
-                notes TEXT,
-                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                CONSTRAINT fk_sessoes_estudo_disciplina FOREIGN KEY (subject_id) REFERENCES disciplinas(id) ON UPDATE CASCADE ON DELETE RESTRICT
+                status_sincronizacao VARCHAR(50) NOT NULL DEFAULT 'NAO_SINCRONIZADO',
+                evento_externo_id VARCHAR(255),
+                mensagem_erro_sincronizacao TEXT,
+                observacoes TEXT,
+                criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT fk_sessoes_estudo_disciplina FOREIGN KEY (disciplina_id) REFERENCES disciplinas(id) ON UPDATE CASCADE ON DELETE RESTRICT
             );
 
-            CREATE INDEX IF NOT EXISTS idx_sessoes_estudo_subject_id ON sessoes_estudo(subject_id);
-            CREATE INDEX IF NOT EXISTS idx_sessoes_estudo_start_time ON sessoes_estudo(start_time);
+            CREATE INDEX IF NOT EXISTS idx_sessoes_estudo_disciplina_id ON sessoes_estudo(disciplina_id);
+            CREATE INDEX IF NOT EXISTS idx_sessoes_estudo_data_inicio ON sessoes_estudo(data_inicio);
             CREATE INDEX IF NOT EXISTS idx_sessoes_estudo_status ON sessoes_estudo(status);
         """;
 

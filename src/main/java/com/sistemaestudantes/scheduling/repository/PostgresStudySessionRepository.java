@@ -20,7 +20,7 @@ import java.util.Optional;
 
 /**
  * Implementação relacional robusta do repositório de sessões de estudo utilizando PostgreSQL.
- * Fornece integridade referencial com a tabela 'subjects', índices otimizados
+ * Fornece integridade referencial com a tabela 'disciplinas', índices otimizados
  * e fallback automático em memória para ambientes de testes desacoplados.
  */
 public class PostgresStudySessionRepository implements StudySessionRepository {
@@ -47,24 +47,24 @@ public class PostgresStudySessionRepository implements StudySessionRepository {
 
         String sql = """
             INSERT INTO sessoes_estudo (
-                id, subject_id, subject_name, topic, start_time, end_time,
-                duration_minutes, activity_type, status, sync_status,
-                external_event_id, sync_error_message, notes, created_at, updated_at
+                id, disciplina_id, disciplina_nome, topico, data_inicio, data_fim,
+                duracao_minutos, tipo_atividade, status, status_sincronizacao,
+                evento_externo_id, mensagem_erro_sincronizacao, observacoes, criado_em, atualizado_em
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (id) DO UPDATE SET
-                subject_id = EXCLUDED.subject_id,
-                subject_name = EXCLUDED.subject_name,
-                topic = EXCLUDED.topic,
-                start_time = EXCLUDED.start_time,
-                end_time = EXCLUDED.end_time,
-                duration_minutes = EXCLUDED.duration_minutes,
-                activity_type = EXCLUDED.activity_type,
+                disciplina_id = EXCLUDED.disciplina_id,
+                disciplina_nome = EXCLUDED.disciplina_nome,
+                topico = EXCLUDED.topico,
+                data_inicio = EXCLUDED.data_inicio,
+                data_fim = EXCLUDED.data_fim,
+                duracao_minutos = EXCLUDED.duracao_minutos,
+                tipo_atividade = EXCLUDED.tipo_atividade,
                 status = EXCLUDED.status,
-                sync_status = EXCLUDED.sync_status,
-                external_event_id = EXCLUDED.external_event_id,
-                sync_error_message = EXCLUDED.sync_error_message,
-                notes = EXCLUDED.notes,
-                updated_at = CURRENT_TIMESTAMP
+                status_sincronizacao = EXCLUDED.status_sincronizacao,
+                evento_externo_id = EXCLUDED.evento_externo_id,
+                mensagem_erro_sincronizacao = EXCLUDED.mensagem_erro_sincronizacao,
+                observacoes = EXCLUDED.observacoes,
+                atualizado_em = CURRENT_TIMESTAMP
         """;
 
         try (Connection conn = databaseConfig.getConnection();
@@ -131,7 +131,7 @@ public class PostgresStudySessionRepository implements StudySessionRepository {
             return fallbackRepo.findAll();
         }
 
-        String sql = "SELECT * FROM sessoes_estudo ORDER BY start_time DESC";
+        String sql = "SELECT * FROM sessoes_estudo ORDER BY data_inicio DESC";
         List<StudySession> list = new ArrayList<>();
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -156,7 +156,7 @@ public class PostgresStudySessionRepository implements StudySessionRepository {
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
 
-        String sql = "SELECT * FROM sessoes_estudo WHERE start_time >= ? AND start_time <= ? ORDER BY start_time ASC";
+        String sql = "SELECT * FROM sessoes_estudo WHERE data_inicio >= ? AND data_inicio <= ? ORDER BY data_inicio ASC";
         List<StudySession> list = new ArrayList<>();
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -221,7 +221,7 @@ public class PostgresStudySessionRepository implements StudySessionRepository {
 
     private void ensureSubjectExists(String subjectId, String subjectName) {
         if (subjectId == null || subjectId.isBlank()) return;
-        String sql = "INSERT INTO disciplinas (id, name, code, hex_color) VALUES (?, ?, ?, ?) ON CONFLICT (id) DO NOTHING";
+        String sql = "INSERT INTO disciplinas (id, nome, codigo, cor_hex) VALUES (?, ?, ?, ?) ON CONFLICT (id) DO NOTHING";
         try (Connection conn = databaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, subjectId);
@@ -235,19 +235,19 @@ public class PostgresStudySessionRepository implements StudySessionRepository {
     private StudySession mapResultSetToSession(ResultSet rs) throws SQLException {
         StudySession s = new StudySession();
         s.setId(rs.getString("id"));
-        s.setSubjectId(rs.getString("subject_id"));
-        s.setSubjectName(rs.getString("subject_name"));
-        s.setTopic(rs.getString("topic"));
+        s.setSubjectId(rs.getString("disciplina_id"));
+        s.setSubjectName(rs.getString("disciplina_nome"));
+        s.setTopic(rs.getString("topico"));
 
-        Timestamp startTs = rs.getTimestamp("start_time");
+        Timestamp startTs = rs.getTimestamp("data_inicio");
         if (startTs != null) s.setStartTime(startTs.toLocalDateTime());
 
-        Timestamp endTs = rs.getTimestamp("end_time");
+        Timestamp endTs = rs.getTimestamp("data_fim");
         if (endTs != null) s.setEndTime(endTs.toLocalDateTime());
 
-        s.setDurationMinutes(rs.getInt("duration_minutes"));
+        s.setDurationMinutes(rs.getInt("duracao_minutos"));
 
-        String actStr = rs.getString("activity_type");
+        String actStr = rs.getString("tipo_atividade");
         if (actStr != null) {
             try { s.setActivityType(ActivityType.valueOf(actStr)); } catch (Exception ignored) {}
         }
@@ -257,19 +257,19 @@ public class PostgresStudySessionRepository implements StudySessionRepository {
             try { s.setStatus(SessionStatus.valueOf(statusStr)); } catch (Exception ignored) {}
         }
 
-        String syncStr = rs.getString("sync_status");
+        String syncStr = rs.getString("status_sincronizacao");
         if (syncStr != null) {
             try { s.setSyncStatus(SyncStatus.valueOf(syncStr)); } catch (Exception ignored) {}
         }
 
-        s.setExternalEventId(rs.getString("external_event_id"));
-        s.setSyncErrorMessage(rs.getString("sync_error_message"));
-        s.setNotes(rs.getString("notes"));
+        s.setExternalEventId(rs.getString("evento_externo_id"));
+        s.setSyncErrorMessage(rs.getString("mensagem_erro_sincronizacao"));
+        s.setNotes(rs.getString("observacoes"));
 
-        Timestamp createdTs = rs.getTimestamp("created_at");
+        Timestamp createdTs = rs.getTimestamp("criado_em");
         if (createdTs != null) s.setCreatedAt(createdTs.toLocalDateTime());
 
-        Timestamp updatedTs = rs.getTimestamp("updated_at");
+        Timestamp updatedTs = rs.getTimestamp("atualizado_em");
         if (updatedTs != null) s.setUpdatedAt(updatedTs.toLocalDateTime());
 
         return s;
