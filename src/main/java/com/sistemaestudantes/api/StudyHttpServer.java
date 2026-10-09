@@ -3,6 +3,7 @@ package com.sistemaestudantes.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.sistemaestudantes.database.DatabaseConfig;
 import com.sistemaestudantes.scheduling.analytics.StudyAnalyticsService;
 import com.sistemaestudantes.scheduling.analytics.StudyMetrics;
 import com.sistemaestudantes.scheduling.domain.ActivityType;
@@ -37,6 +38,7 @@ public class StudyHttpServer {
     private final SubjectRepository subjectRepository;
     private final McpClientService mcpClientService;
     private final StudyAnalyticsService analyticsService;
+    private final DatabaseConfig databaseConfig;
     private final ObjectMapper objectMapper;
     private HttpServer server;
     private int actualPort;
@@ -46,12 +48,22 @@ public class StudyHttpServer {
                            SubjectRepository subjectRepository,
                            McpClientService mcpClientService,
                            StudyAnalyticsService analyticsService) {
+        this(port, sessionRepository, subjectRepository, mcpClientService, analyticsService, null);
+    }
+
+    public StudyHttpServer(int port,
+                           StudySessionRepository sessionRepository,
+                           SubjectRepository subjectRepository,
+                           McpClientService mcpClientService,
+                           StudyAnalyticsService analyticsService,
+                           DatabaseConfig databaseConfig) {
         this.port = port;
         this.actualPort = port;
         this.sessionRepository = sessionRepository;
         this.subjectRepository = subjectRepository;
         this.mcpClientService = mcpClientService;
         this.analyticsService = analyticsService;
+        this.databaseConfig = databaseConfig;
 
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
@@ -103,6 +115,16 @@ public class StudyHttpServer {
         resp.put("status", "UP");
         resp.put("timestamp", LocalDateTime.now().toString());
         resp.put("version", "1.0.0");
+        if (databaseConfig != null) {
+            resp.put("databaseType", "PostgreSQL Relacional");
+            resp.put("databaseHost", databaseConfig.getHost() + ":" + databaseConfig.getPort());
+            resp.put("databaseName", databaseConfig.getDatabase());
+            resp.put("databaseUser", databaseConfig.getUsername());
+            resp.put("databaseConnected", databaseConfig.isConnected());
+        } else {
+            resp.put("databaseType", "In-Memory Fallback");
+            resp.put("databaseConnected", false);
+        }
         sendJsonResponse(exchange, 200, resp);
     }
 

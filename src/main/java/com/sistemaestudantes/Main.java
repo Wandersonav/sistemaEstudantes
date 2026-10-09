@@ -1,9 +1,11 @@
 package com.sistemaestudantes;
 
 import com.sistemaestudantes.api.StudyHttpServer;
+import com.sistemaestudantes.database.DatabaseConfig;
 import com.sistemaestudantes.scheduling.analytics.StudyAnalyticsService;
 import com.sistemaestudantes.scheduling.mcp.McpClientService;
 import com.sistemaestudantes.scheduling.repository.InMemoryStudySessionRepository;
+import com.sistemaestudantes.scheduling.repository.PostgresStudySessionRepository;
 import com.sistemaestudantes.scheduling.repository.StudySessionRepository;
 import com.sistemaestudantes.scheduling.repository.SubjectRepository;
 
@@ -25,8 +27,17 @@ public class Main {
 
         int configuredPort = Integer.getInteger("port", DEFAULT_PORT);
 
-        StudySessionRepository sessionRepository = new InMemoryStudySessionRepository();
-        SubjectRepository subjectRepository = new SubjectRepository();
+        // Inicializa o banco de dados PostgreSQL relacional (host: localhost, port: 5432, user: postgres, pass: 1234)
+        DatabaseConfig dbConfig = new DatabaseConfig();
+        boolean dbConnected = dbConfig.init();
+        if (dbConnected) {
+            System.out.println("🐘 [Banco de Dados] PostgreSQL conectado e pronto para uso.");
+        } else {
+            System.out.println("⚠️ [Banco de Dados] PostgreSQL indisponível. Operando em modo de resiliência com repositório local.");
+        }
+
+        StudySessionRepository sessionRepository = new PostgresStudySessionRepository(dbConfig);
+        SubjectRepository subjectRepository = new SubjectRepository(dbConfig);
         McpClientService mcpClientService = new McpClientService(sessionRepository);
         StudyAnalyticsService analyticsService = new StudyAnalyticsService(sessionRepository);
 
@@ -38,7 +49,8 @@ public class Main {
                     sessionRepository,
                     subjectRepository,
                     mcpClientService,
-                    analyticsService
+                    analyticsService,
+                    dbConfig
             );
             httpServer.start();
 
@@ -57,10 +69,14 @@ public class Main {
         }
 
         final StudyHttpServer finalServer = httpServer;
+        final DatabaseConfig finalDbConfig = dbConfig;
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("\nEncerrando servidor backend...");
             if (finalServer != null) {
                 finalServer.stop();
+            }
+            if (finalDbConfig != null) {
+                finalDbConfig.close();
             }
             keepAliveLatch.countDown();
         }));

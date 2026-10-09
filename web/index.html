@@ -67,12 +67,16 @@
           <span class="nav-badge">25 min</span>
         </button>
 
-        <button type="button" class="nav-link" id="nav-btn-mcp" data-tab="mcp">
+        <button type="button" class="nav-link" id="nav-btn-calendar" data-tab="calendar">
           <svg class="icon-svg nav-icon" viewBox="0 0 24 24">
-            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+            <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
           </svg>
-          <span class="nav-text">Google Calendar (MCP)</span>
-          <span class="nav-badge badge-mcp" id="badge-mcp-status">Ativo</span>
+          <span class="nav-text">Calendário</span>
+          <span class="nav-badge badge-calendar" id="badge-calendar-count">0</span>
         </button>
       </nav>
 
@@ -90,7 +94,7 @@
       <header class="top-header">
         <div class="header-titles">
           <h1 id="page-title">Planejamento & Agenda de Estudos</h1>
-          <p id="page-subtitle">Organize seus blocos de estudo diários com sincronização Google Calendar via MCP.</p>
+          <p id="page-subtitle">Organize seus blocos de estudo diários no calendário interativo integrado ao sistema.</p>
         </div>
 
         <div class="header-actions">
@@ -130,7 +134,7 @@
             <header class="card-header-block">
               <div class="card-title-group">
                 <h2>Agendar Bloco de Estudo</h2>
-                <p>Defina a disciplina, horário e envie automaticamente para o Google Calendar via MCP.</p>
+                <p>Defina a disciplina, horário e visualize diretamente no calendário interativo do sistema.</p>
               </div>
             </header>
 
@@ -199,7 +203,7 @@
                 </div>
               </div>
 
-              <!-- Rodapé de Ação: Checkbox MCP à Esquerda, Botão Primário 46px à Direita -->
+              <!-- Rodapé de Ação: Checkbox Calendário à Esquerda, Botão Primário 46px à Direita -->
               <div class="form-action-footer">
                 <label class="custom-checkbox-wrapper" for="check-sync-mcp">
                   <input type="checkbox" id="check-sync-mcp" checked>
@@ -211,9 +215,9 @@
                         <line x1="8" y1="2" x2="8" y2="6"/>
                         <line x1="3" y1="10" x2="21" y2="10"/>
                       </svg>
-                      Sincronizar no Google Calendar via MCP
+                      Fixar no Calendário de Estudos
                     </span>
-                    <span class="checkbox-support">Cria automaticamente o evento padronizado [Estudo] {Matéria}</span>
+                    <span class="checkbox-support">Exibe o bloco destacado na grade do calendário interativo</span>
                   </span>
                 </label>
 
@@ -233,7 +237,7 @@
             <header class="card-header-block with-actions">
               <div class="card-title-group">
                 <h2>Sessões Agendadas</h2>
-                <p>Gerencie seus blocos de estudo e status da sincronização MCP.</p>
+                <p>Gerencie seus blocos de estudo e navegue para o calendário.</p>
               </div>
 
               <!-- Filtros da Tabela -->
@@ -269,7 +273,7 @@
                     <th>Atividade</th>
                     <th>Duração</th>
                     <th>Status</th>
-                    <th>Google Calendar (MCP)</th>
+                    <th>Calendário</th>
                     <th style="text-align: right;">Ações</th>
                   </tr>
                 </thead>
@@ -439,82 +443,342 @@
           </div>
         </section>
 
-        <!-- ================= ABA 4: GOOGLE CALENDAR (MCP) ================= -->
-        <section id="section-mcp" class="tab-section">
-          <article class="card-panel">
-            <header class="card-header-block with-actions">
-              <div class="card-title-group">
-                <h2>Integração Google Calendar via MCP</h2>
-                <p>Sincronização assíncrona desacoplada de ferramentas com o Model Context Protocol.</p>
+        <!-- ================= ABA 4: CALENDÁRIO ESTILO GOOGLE CALENDAR ================= -->
+        <section id="section-calendar" class="tab-section">
+          <article class="card-panel gcal-card-container">
+            <!-- Barra Superior do Google Calendar (Toolbar) -->
+            <header class="gcal-toolbar">
+              <div class="gcal-toolbar-left">
+                <div class="gcal-brand">
+                  <div class="gcal-logo-box">
+                    <span class="gcal-logo-day" id="gcal-today-badge">31</span>
+                  </div>
+                  <div class="gcal-brand-text">
+                    <h2>Agenda & Calendário</h2>
+                    <span>Google Calendar Integrado</span>
+                  </div>
+                </div>
+
+                <button type="button" class="btn-gcal-today" id="btn-gcal-today">Hoje</button>
+
+                <div class="gcal-nav-group">
+                  <button type="button" class="btn-gcal-nav" id="btn-gcal-prev" title="Período anterior" aria-label="Anterior">
+                    <svg class="icon-svg" width="18" height="18" viewBox="0 0 24 24">
+                      <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                  </button>
+                  <button type="button" class="btn-gcal-nav" id="btn-gcal-next" title="Próximo período" aria-label="Próximo">
+                    <svg class="icon-svg" width="18" height="18" viewBox="0 0 24 24">
+                      <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <h3 class="gcal-current-label" id="gcal-current-label">Outubro de 2026</h3>
               </div>
 
-              <button type="button" class="btn-header-primary" id="btn-sync-all-mcp">
-                <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24">
-                  <polyline points="23 4 23 10 17 10"/>
-                  <polyline points="1 20 1 14 7 14"/>
-                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-                </svg>
-                <span>Sincronizar Pendentes</span>
-              </button>
+              <div class="gcal-toolbar-right">
+                <!-- Seletor de Visualização Segmentado (Mês / Semana / Dia / Programação) -->
+                <div class="gcal-view-selector" id="gcal-view-selector" role="tablist">
+                  <button type="button" class="gcal-view-btn active" data-view="month">Mês</button>
+                  <button type="button" class="gcal-view-btn" data-view="week">Semana</button>
+                  <button type="button" class="gcal-view-btn" data-view="day">Dia</button>
+                  <button type="button" class="gcal-view-btn" data-view="schedule">Programação</button>
+                </div>
+
+                <!-- Botão + Criar Estilo Google Calendar -->
+                <button type="button" class="btn-gcal-create" id="btn-gcal-create">
+                  <svg class="icon-svg" width="20" height="20" viewBox="0 0 24 24">
+                    <line x1="12" y1="5" x2="12" y2="19" stroke-width="2.5"/>
+                    <line x1="5" y1="12" x2="19" y2="12" stroke-width="2.5"/>
+                  </svg>
+                  <span>Criar Bloco</span>
+                </button>
+              </div>
             </header>
 
-            <div class="form-grid grid-2cols" style="margin-bottom: 28px;">
-              <div style="background-color: var(--color-bg-alt); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
-                <h3 style="font-size: 14px; font-weight: 700; color: var(--color-text-title); margin-bottom: 12px;">Status da Conexão MCP</h3>
-                <ul class="mcp-info-list">
-                  <li class="mcp-info-item">
-                    <span>Protocolo</span>
-                    <strong>Model Context Protocol (v1.0)</strong>
-                  </li>
-                  <li class="mcp-info-item">
-                    <span>Servidor MCP</span>
-                    <strong style="color: var(--color-primary);">@modelcontextprotocol/server-google-calendar</strong>
-                  </li>
-                  <li class="mcp-info-item">
-                    <span>Sessões Sincronizadas</span>
-                    <strong style="color: var(--color-success);" id="mcp-synced-count">0 sessões</strong>
-                  </li>
-                  <li class="mcp-info-item">
-                    <span>Comportamento</span>
-                    <strong>Execução assíncrona resiliente</strong>
-                  </li>
-                </ul>
-              </div>
-
-              <div style="background-color: var(--color-bg-alt); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
-                <h3 style="font-size: 14px; font-weight: 700; color: var(--color-text-title); margin-bottom: 12px;">Configuração (.agents/mcp_config.json)</h3>
-                <pre class="code-box"><code>{
-  "mcpServers": {
-    "google-calendar": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-google-calendar"],
-      "env": { "GOOGLE_CALENDAR_ID": "primary" }
-    }
-  }
-}</code></pre>
-              </div>
-            </div>
-
-            <!-- Inspetor de Payload MCP -->
-            <div style="background-color: var(--color-bg-alt); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
-              <h3 style="font-size: 14px; font-weight: 700; color: var(--color-text-title); margin-bottom: 4px;">Inspetor de Payload MCP</h3>
-              <p style="font-size: 13px; color: var(--color-text-body); margin-bottom: 16px;">Formato padronizado transmitido para a tool de inserção no Google Calendar:</p>
-
-              <div class="form-grid grid-2cols" style="margin-bottom: 16px;">
-                <div class="form-field">
-                  <label for="inspector-subject">Disciplina de Teste</label>
-                  <input type="text" id="inspector-subject" class="input-control" value="Algoritmos e Estruturas de Dados">
+            <!-- Corpo do Calendário: Layout Duas Colunas -->
+            <div class="gcal-body-layout">
+              <!-- Barra Lateral Esquerda: Mini Calendário + Filtros de Disciplinas -->
+              <aside class="gcal-sidebar">
+                <!-- Mini Calendário Mensal (DatePicker) -->
+                <div class="mini-calendar-box">
+                  <div class="mini-cal-header">
+                    <span class="mini-cal-title" id="mini-cal-month-title">Outubro 2026</span>
+                    <div class="mini-cal-nav">
+                      <button type="button" class="btn-mini-nav" id="btn-mini-prev" aria-label="Mês anterior">
+                        <svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                      </button>
+                      <button type="button" class="btn-mini-nav" id="btn-mini-next" aria-label="Próximo mês">
+                        <svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mini-cal-weekdays">
+                    <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                  </div>
+                  <div class="mini-cal-grid" id="mini-cal-grid">
+                    <!-- Renderizado dinamicamente via JS -->
+                  </div>
                 </div>
-                <div class="form-field">
-                  <label for="inspector-topic">Tópico de Teste</label>
-                  <input type="text" id="inspector-topic" class="input-control" value="Grafos e Árvores AVL">
+
+                <!-- Filtro de Disciplinas (Estilo "Minhas Agendas" do Google Calendar) -->
+                <div class="gcal-subjects-filter">
+                  <div class="gcal-filter-header">
+                    <h4>Minhas Disciplinas</h4>
+                    <button type="button" class="btn-text-action" id="btn-toggle-all-subjects" title="Marcar ou desmarcar todas">Todas</button>
+                  </div>
+                  <div class="gcal-subjects-list" id="gcal-subjects-filter-list">
+                    <!-- Checkboxes com cores renderizados via JS -->
+                  </div>
+                </div>
+
+                <!-- Resumo Rápido -->
+                <div class="gcal-stats-card">
+                  <span class="gcal-stats-label">Sessões Programadas</span>
+                  <div class="gcal-stats-row">
+                    <strong class="gcal-stats-val" id="gcal-month-sessions-count">0</strong>
+                    <span class="gcal-stats-hours" id="gcal-month-hours-count">0h estimadas</span>
+                  </div>
+                </div>
+              </aside>
+
+              <!-- Grade Principal do Calendário -->
+              <div class="gcal-main-board" id="gcal-main-board">
+                <!-- 1. Visualização Mensal -->
+                <div class="gcal-view-container active" id="gcal-view-month">
+                  <div class="gcal-month-header">
+                    <div class="month-col-header">DOM</div>
+                    <div class="month-col-header">SEG</div>
+                    <div class="month-col-header">TER</div>
+                    <div class="month-col-header">QUA</div>
+                    <div class="month-col-header">QUI</div>
+                    <div class="month-col-header">SEX</div>
+                    <div class="month-col-header">SÁB</div>
+                  </div>
+                  <div class="gcal-month-grid" id="gcal-month-grid">
+                    <!-- Células do mês renderizadas dinamicamente via JS -->
+                  </div>
+                </div>
+
+                <!-- 2. Visualização Semanal -->
+                <div class="gcal-view-container" id="gcal-view-week">
+                  <div class="gcal-week-header-row" id="gcal-week-header">
+                    <!-- Renderizado dinamicamente com 7 colunas de dias e datas -->
+                  </div>
+                  <div class="gcal-time-scroll" id="gcal-week-scroll">
+                    <div class="gcal-week-grid-body" id="gcal-week-body">
+                      <!-- Linhas de horas e colunas de dias -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Visualização Diária -->
+                <div class="gcal-view-container" id="gcal-view-day">
+                  <div class="gcal-day-header-row" id="gcal-day-header">
+                    <!-- Renderizado dinamicamente para o dia corrente -->
+                  </div>
+                  <div class="gcal-time-scroll" id="gcal-day-scroll">
+                    <div class="gcal-day-grid-body" id="gcal-day-body">
+                      <!-- Linhas de horas e coluna ampla do dia -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4. Visualização Programação / Agenda -->
+                <div class="gcal-view-container" id="gcal-view-schedule">
+                  <div class="gcal-schedule-list" id="gcal-schedule-list">
+                    <!-- Lista de sessões agrupadas por data -->
+                  </div>
                 </div>
               </div>
-
-              <pre class="code-box light-preview"><code id="mcp-payload-preview"></code></pre>
             </div>
           </article>
         </section>
+
+        <!-- ================= MODAIS ESTILO GOOGLE CALENDAR ================= -->
+        <!-- 1. Modal de Detalhes do Evento -->
+        <div class="gcal-modal-backdrop" id="modal-event-details" style="display: none;">
+          <div class="gcal-modal-card">
+            <div class="gcal-modal-banner" id="modal-details-banner"></div>
+            <header class="gcal-modal-header">
+              <div class="gcal-modal-actions-top">
+                <button type="button" class="btn-icon-round" id="btn-modal-pomodoro" title="Iniciar Pomodoro com esta sessão">
+                  <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24">
+                    <circle cx="12" cy="14" r="8"/>
+                    <line x1="12" y1="2" x2="12" y2="6"/>
+                    <line x1="12" y1="10" x2="12" y2="14"/>
+                  </svg>
+                </button>
+                <button type="button" class="btn-icon-round" id="btn-modal-toggle-status" title="Alternar status (Concluir)">
+                  <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </button>
+                <button type="button" class="btn-icon-round" id="btn-modal-edit" title="Editar bloco">
+                  <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                </button>
+                <button type="button" class="btn-icon-round btn-danger-action" id="btn-modal-delete" title="Excluir bloco">
+                  <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+                <button type="button" class="btn-icon-round" id="btn-modal-close" title="Fechar">
+                  <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            </header>
+
+            <div class="gcal-modal-body">
+              <div class="gcal-detail-subject" id="modal-details-subject">Algoritmos</div>
+              <h3 class="gcal-detail-topic" id="modal-details-topic">Árvores Binárias e AVL</h3>
+
+              <div class="gcal-detail-row">
+                <svg class="icon-svg gcal-detail-icon" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <div>
+                  <div class="gcal-detail-datetime" id="modal-details-datetime">Quinta-feira, 8 de Outubro • 14:00 – 15:30</div>
+                  <div class="gcal-detail-subinfo" id="modal-details-duration">90 minutos</div>
+                </div>
+              </div>
+
+              <div class="gcal-detail-row">
+                <svg class="icon-svg gcal-detail-icon" viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                <div>
+                  <div class="gcal-detail-tags" id="modal-details-badges">
+                    <!-- Badges de atividade e status -->
+                  </div>
+                </div>
+              </div>
+
+              <div class="gcal-detail-row" id="modal-details-notes-row">
+                <svg class="icon-svg gcal-detail-icon" viewBox="0 0 24 24">
+                  <line x1="21" y1="10" x2="3" y2="10"/>
+                  <line x1="21" y1="6" x2="3" y2="6"/>
+                  <line x1="21" y1="14" x2="3" y2="14"/>
+                  <line x1="21" y1="18" x2="3" y2="18"/>
+                </svg>
+                <div class="gcal-detail-notes" id="modal-details-notes">
+                  Nenhuma anotação informada.
+                </div>
+              </div>
+            </div>
+
+            <footer class="gcal-modal-footer">
+              <button type="button" class="btn-gcal-sec" id="btn-modal-action-close">Fechar</button>
+              <button type="button" class="btn-gcal-prim" id="btn-modal-action-pomodoro">
+                <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24">
+                  <circle cx="12" cy="14" r="8"/>
+                  <line x1="12" y1="2" x2="12" y2="6"/>
+                  <line x1="12" y1="10" x2="12" y2="14"/>
+                </svg>
+                <span>Focar no Pomodoro</span>
+              </button>
+            </footer>
+          </div>
+        </div>
+
+        <!-- 2. Modal de Criação / Edição Rápida de Bloco de Estudo -->
+        <div class="gcal-modal-backdrop" id="modal-event-form" style="display: none;">
+          <div class="gcal-modal-card form-dialog">
+            <header class="gcal-modal-header dialog-header">
+              <h3 id="modal-form-title">Novo Bloco de Estudo</h3>
+              <button type="button" class="btn-icon-round" id="btn-form-modal-close" title="Fechar">
+                <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </header>
+
+            <form id="gcal-quick-form" class="gcal-modal-form-body">
+              <input type="hidden" id="gcal-form-session-id" value="">
+
+              <div class="form-field">
+                <label for="gcal-input-topic">Título / Conteúdo a Estudar</label>
+                <input type="text" id="gcal-input-topic" class="input-control" placeholder="Ex.: Árvores Binárias, Derivadas, Microsserviços..." required>
+              </div>
+
+              <div class="form-grid grid-2cols">
+                <div class="form-field">
+                  <label for="gcal-input-subject">Disciplina</label>
+                  <select id="gcal-input-subject" class="select-control" required></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="gcal-input-activity">Tipo de Atividade</label>
+                  <select id="gcal-input-activity" class="select-control">
+                    <option value="TEORIA">Teoria e Leitura</option>
+                    <option value="EXERCICIOS">Resolução de Exercícios</option>
+                    <option value="REVISAO">Revisão Espaçada</option>
+                    <option value="SIMULADO">Simulado e Provas</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-grid grid-3cols">
+                <div class="form-field">
+                  <label for="gcal-input-date">Data</label>
+                  <input type="date" id="gcal-input-date" class="input-control" required>
+                </div>
+
+                <div class="form-field">
+                  <label for="gcal-input-time">Horário de Início</label>
+                  <input type="time" id="gcal-input-time" class="input-control" required>
+                </div>
+
+                <div class="form-field">
+                  <label for="gcal-input-duration">Duração</label>
+                  <select id="gcal-input-duration" class="select-control">
+                    <option value="25">25 min (Pomodoro)</option>
+                    <option value="50">50 min</option>
+                    <option value="60">60 min (1 Hora)</option>
+                    <option value="90">90 min (1h 30m)</option>
+                    <option value="120">120 min (2 Horas)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-grid grid-2cols">
+                <div class="form-field">
+                  <label for="gcal-input-status">Status</label>
+                  <select id="gcal-input-status" class="select-control">
+                    <option value="PLANEJADA">Planejada</option>
+                    <option value="EM_ANDAMENTO">Em Andamento</option>
+                    <option value="CONCLUIDA">Concluída</option>
+                  </select>
+                </div>
+
+                <div class="form-field">
+                  <label for="gcal-input-notes">Anotações da Sessão</label>
+                  <input type="text" id="gcal-input-notes" class="input-control" placeholder="Páginas, exercícios ou metas...">
+                </div>
+              </div>
+
+              <footer class="gcal-modal-footer">
+                <button type="button" class="btn-gcal-sec" id="btn-form-modal-cancel">Cancelar</button>
+                <button type="submit" class="btn-gcal-prim" id="btn-form-modal-submit">
+                  <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  <span>Salvar no Calendário</span>
+                </button>
+              </footer>
+            </form>
+          </div>
+        </div>
 
       </main>
     </div>
